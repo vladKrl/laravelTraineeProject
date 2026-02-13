@@ -6,9 +6,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// При помощи копирования и изменения этого
-// базового шаблона будут создаваться новые
-// страницы, реализующие CRUD для таблиц БД
+// Taken from the old project as a reference
+// Via copying this basit template new CRUD pages will be created
 // Route::group(['namespace' => 'Object','prefix' => 'objects'], function(){
 //     Route::get('/', 'IndexController')->name('admin.object.index');
 //     Route::get('/create', 'CreateController')->name('admin.object.create');

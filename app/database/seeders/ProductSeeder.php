@@ -19,7 +19,7 @@ class ProductSeeder extends Seeder
         $user = User::factory()->create([
             'name' => 'Test User',
             'email' => 'testmail@example.com',
-//            'password' => bcrypt('password'),
+            'password' => bcrypt('password'),
         ]);
 
         $status = Status::factory()->create(['name' => 'active']);

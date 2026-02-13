@@ -8,7 +8,7 @@ use App\Models\Product;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $products = Product::paginate(12);
         return ProductResource::collection($products);

@@ -9,10 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
     "axios": "^1.13.4",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
     "swr": "^2.4.0"
-  }
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.24",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18"
+  },
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }

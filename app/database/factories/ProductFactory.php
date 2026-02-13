@@ -22,7 +22,6 @@ class ProductFactory extends Factory
         return [
             'user_id' => User::factory(),
             'label' => $this->faker->sentence(3),
-//            'picture_link' => $this->faker->boolean(75) ? $this->faker->imageUrl(640, 480, 'product') : null,
             'description' => $this->faker->optional()->paragraph(),
             'price' => $this->faker->randomFloat(2, 1, 100),
             'status_id' => Status::factory(),

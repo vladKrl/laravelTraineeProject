@@ -24,8 +24,8 @@
       networks:
         - single-net
       environment:
-        - NEXT_PUBLIC_API_URL_SERVER=http://nginx:80/api
-        - NEXT_PUBLIC_API_URL_BROWSER=http://localhost:80/api
+        - NEXT_PUBLIC_API_URL_SERVER=http://nginx:80
+        - NEXT_PUBLIC_API_URL_BROWSER=http://localhost:80
       command: sh -c "cd /var/www/frontend && npm install && npm run dev -- -H 0.0.0.0 -p 3000"
     db:
       volumes:
