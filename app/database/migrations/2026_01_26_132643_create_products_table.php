@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('label');
             $table->string('picture_link')->nullable();
             $table->text('description')->nullable();
-            $table->decimal('price', 10);
+            $table->decimal('price', 10, 2);
             $table->foreignId('status_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });

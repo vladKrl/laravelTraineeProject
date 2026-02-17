@@ -13,7 +13,7 @@ const Login = () => {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [errors, setErrors] = useState("");
+    const [errors, setErrors] = useState([]);
 
     const {login, isLoading, user} = useAuth({middleware: "guest"});
 
@@ -59,7 +59,6 @@ const Login = () => {
                                 className={"w-full"}
                                 onChange={e => setPassword(e.target.value)}
                                 required
-                                autoFocus
                                 autoComplete={"off"}
                             />
                         </div>
