@@ -32,9 +32,9 @@ export const useAuth = ({middleware} = {}) => {
 
             router.push("/");
         } catch(error) {
-            if (error.response.status !== 422) throw error
+            if (error.response.status !== 422) throw error;
 
-            setErrors(Object.values(error.response.data.errors).flat())
+            setErrors(Object.values(error.response.data.errors).flat());
         }
     }
 
@@ -44,6 +44,29 @@ export const useAuth = ({middleware} = {}) => {
         await mutate(null);
 
         await router.push("/")
+    }
+
+    const register = async ({ setErrors, ...props}) => {
+        setErrors([]);
+        try {
+            await csrf();
+
+            await api.post("/register", props);
+
+            await mutate();
+
+            router.push("/");
+        } catch (error) {
+            if (error.response) {
+                if (error.response.status !== 422) throw error;
+
+                setErrors(Object.values(error.response.data.errors).flat());
+            } else if (error.request) {
+                console.error("Server is not answering.");
+                setErrors(["Server is not available."]);
+            } else
+                throw error;
+        }
     }
 
     useEffect(() => {
@@ -63,6 +86,7 @@ export const useAuth = ({middleware} = {}) => {
         csrf,
         isLoading,
         login,
-        logout
+        logout,
+        register
     }
 }

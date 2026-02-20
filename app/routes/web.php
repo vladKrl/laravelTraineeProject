@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Auth\Register;
 
 Route::get('/', function () {
     return view('welcome');
@@ -32,6 +33,9 @@ Route::post('/logout', function (Request $request) {
     $request->session()->regenerateToken();
     return response()->noContent();
 });
+
+Route::post('/register', Register::class)
+    ->middleware('guest');
 
 /*
  Taken from the old project as a reference

@@ -30,9 +30,14 @@ const Nav = () => {
                             </a>
                             </div>
                         ) : (
-                        <Link href={"/login"}>
-                            Sing In
-                        </Link>
+                        <div>
+                            <Link className={"mr-5"} href={"/login"}>
+                                Sing In
+                            </Link>
+                            <Link href={"/register"}>
+                                Register
+                            </Link>
+                        </div>
                     )
                 )}
             </div>

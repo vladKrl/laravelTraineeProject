@@ -1,13 +1,13 @@
 "use client";
 
 import React, {useState} from "react";
-import "../styles/global.css";
-import {useAuth} from "../hooks/auth";
-import Layout from "../components/Layouts";
-import Label from "../components/Label";
-import Input from "../components/Input";
-import Button from "../components/Button";
-import Errors from "../components/Errors";
+import "../../styles/global.css";
+import {useAuth} from "../../hooks/auth";
+import Layout from "../../components/Layouts";
+import Label from "../../components/Label";
+import Input from "../../components/Input";
+import Button from "../../components/Button";
+import Errors from "../../components/Errors";
 
 const Login = () => {
 
