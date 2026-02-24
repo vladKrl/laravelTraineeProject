@@ -10,7 +10,6 @@ import Button from "../../components/Button";
 import Errors from "../../components/Errors";
 
 const Register = () => {
-
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -97,7 +96,7 @@ const Register = () => {
                         />
                     </div>
 
-                    <div className="">
+                    <div className={""}>
                         <Button>Register</Button>
                     </div>
                 </form>

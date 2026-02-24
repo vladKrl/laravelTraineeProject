@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -36,6 +37,16 @@ Route::post('/logout', function (Request $request) {
 
 Route::post('/register', Register::class)
     ->middleware('guest');
+
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    return redirect('http://localhost:3000/?verified=1');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return response()->json(['status' => 'verification-link-sent']);
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
 /*
  Taken from the old project as a reference

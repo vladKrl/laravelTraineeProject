@@ -1,12 +1,12 @@
 import useSWR from 'swr'
 import api from "../../utils/api";
 import {useEffect, useState} from "react";
-import {useRouter} from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
 
 export const useAuth = ({middleware} = {}) => {
 
     const router = useRouter();
-
+    const pathname = usePathname();
     const [isLoading, setIsLoading] = useState(true);
 
     const csrf = () => api.get("/sanctum/csrf-cookie");
@@ -43,7 +43,7 @@ export const useAuth = ({middleware} = {}) => {
 
         await mutate(null);
 
-        await router.push("/")
+        router.push("/")
     }
 
     const register = async ({ setErrors, ...props}) => {
@@ -69,17 +69,34 @@ export const useAuth = ({middleware} = {}) => {
         }
     }
 
+    const resendEmailVerification = ({ setStatus }) => {
+        api.post('/email/verification-notification')
+            .then(response => setStatus(response.data.status));
+    };
+
     useEffect(() => {
         if (user || error) {
             setIsLoading(false);
         }
-        
-        if (middleware === "guest" && user)
-            router.push("/");
-        
+
+        if (user) {
+            if (middleware === 'auth' && !user.email_verified_at)
+                router.push('/verify-email');
+
+            if (middleware === 'auth' && user.email_verified_at && pathname === '/verify-email')
+                router.push('/');
+
+            if (middleware === 'guest') {
+                if (!user.email_verified_at)
+                    router.push("/verify-email");
+                else
+                    router.push("/");
+            }
+        }
+
         if (middleware === "auth" && error)
             router.push("/login");
-    },[user, error]);
+    },[user, error, middleware, pathname]);
 
     return {
         user,
@@ -87,6 +104,7 @@ export const useAuth = ({middleware} = {}) => {
         isLoading,
         login,
         logout,
-        register
+        register,
+        resendEmailVerification
     }
 }

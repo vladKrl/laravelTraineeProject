@@ -1,13 +1,26 @@
 "use client"
 
-import React from 'react';
+import React, {useEffect} from 'react';
+import "../app/styles/global.css";
 import Layout from "./components/Layouts";
 import Button from "./components/Button";
 import Input from "./components/Input";
 import Label from "./components/Label";
-import "../app/styles/global.css";
+import {useAuth} from "./hooks/auth";
+import {useSearchParams} from "next/navigation";
+import {mutate} from "swr";
 
 const Home = () => {
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        if (searchParams.get('verified') === '1') {
+            mutate();
+        }
+    }, [searchParams]);
+
+    useAuth({ middleware: 'auth' });
+
     return (
         <Layout>
             <h1>Home page!</h1>
