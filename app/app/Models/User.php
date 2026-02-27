@@ -56,4 +56,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
         $this->notify($notification->delay(now()->addSeconds(1)));
     }
+
+    public function products(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
 }

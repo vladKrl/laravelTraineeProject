@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
@@ -10,3 +11,9 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::get('/products', [ProductController::class, 'index']);
+
+Route::get('/categories', function () {
+    return Category::all();
+});
+
+Route::apiResource('products', ProductController::class);

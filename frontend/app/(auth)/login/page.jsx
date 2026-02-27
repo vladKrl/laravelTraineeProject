@@ -9,7 +9,7 @@ import Input from "../../components/Input";
 import Button from "../../components/Button";
 import Errors from "../../components/Errors";
 
-const Login = () => {
+export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState([]);
@@ -50,7 +50,7 @@ const Login = () => {
                         </div>
 
                         <div>
-                                <Label htmlFor="password">Password</Label>
+                            <Label htmlFor="password">Password</Label>
                             <Input
                                 id={"password"}
                                 type={"password"}
@@ -62,7 +62,7 @@ const Login = () => {
                             />
                         </div>
 
-                        <div className="">
+                        <div>
                             <Button>Login</Button>
                         </div>
                     </form>
@@ -70,5 +70,3 @@ const Login = () => {
         </Layout>
     )
 }
-
-export default Login;

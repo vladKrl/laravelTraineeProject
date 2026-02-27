@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {useAuth} from "../hooks/auth";
 
-const Nav = () => {
+export default function Nav() {
     const {user, logout, isLoading} = useAuth();
 
     return (
@@ -44,5 +44,3 @@ const Nav = () => {
         </nav>
     );
 }
-
-export default Nav;

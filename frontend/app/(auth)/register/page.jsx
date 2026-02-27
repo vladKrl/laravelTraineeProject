@@ -9,7 +9,7 @@ import Input from "../../components/Input";
 import Button from "../../components/Button";
 import Errors from "../../components/Errors";
 
-const Register = () => {
+export default function Register() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -105,4 +105,3 @@ const Register = () => {
     )
 }
 
-export default Register;

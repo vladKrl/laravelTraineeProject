@@ -1,4 +1,4 @@
-const Errors = ({errors = [], ...props}) => {
+export default function Errors({errors = [], ...props}) {
     return (
         <>
             {errors.length > 0 && (
@@ -19,5 +19,3 @@ const Errors = ({errors = [], ...props}) => {
         </>
     )
 }
-
-export default Errors;

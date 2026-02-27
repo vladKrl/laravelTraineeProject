@@ -10,7 +10,8 @@ import {useAuth} from "./hooks/auth";
 import {useSearchParams} from "next/navigation";
 import {mutate} from "swr";
 
-const Home = () => {
+
+export default function Home() {
     const searchParams = useSearchParams();
 
     useEffect(() => {
@@ -30,5 +31,3 @@ const Home = () => {
         </Layout>
     )
 }
-
-export default Home;

@@ -5,7 +5,7 @@ import "../../styles/global.css";
 import { useAuth } from "../../hooks/auth";
 import Button from "../../components/Button";
 
-const VerifyEmail = () => {
+export default function VerifyEmail() {
     const { logout, resendEmailVerification } = useAuth({middleware: 'auth'})
 
     return (
@@ -23,7 +23,3 @@ const VerifyEmail = () => {
         </div>
     )
 }
-
-
-
-export default VerifyEmail;

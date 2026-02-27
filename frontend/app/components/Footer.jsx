@@ -1,4 +1,4 @@
-const Footer = () => {
+export default function Footer() {
     return (
         <footer className={"flex justify-center p-4 text-white bg-indigo-500"}>
             <h1 className={"flex space-x-2 font-semibold tracking-wide"}>
@@ -7,5 +7,3 @@ const Footer = () => {
         </footer>
     )
 }
-
-export default Footer;
