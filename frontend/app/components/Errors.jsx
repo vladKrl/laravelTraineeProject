@@ -1,5 +1,3 @@
-import errorEntry from "next/dist/server/typescript/rules/error";
-
 export default function Errors({errors = {}, ...props}) {
     const errorList = Array.isArray(errors) ? errors : Object.values(errors).flat();
 
