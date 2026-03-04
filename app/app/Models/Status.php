@@ -10,4 +10,9 @@ class Status extends Model
     use HasFactory;
 
     protected $fillable = ['name'];
+
+    public function products(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
 }

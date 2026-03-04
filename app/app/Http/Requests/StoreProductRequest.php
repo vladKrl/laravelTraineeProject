@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Product;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreProductRequest extends FormRequest
@@ -11,7 +12,7 @@ class StoreProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()->can('create', Product::class);
     }
 
     /**
@@ -23,7 +24,7 @@ class StoreProductRequest extends FormRequest
     {
         return [
             'label'       => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'required|string|min:10|max:10000',
             'price'       => 'required|numeric|min:0',
             'categories'  => 'nullable|array',
             'categories.*'=> 'exists:categories,id',

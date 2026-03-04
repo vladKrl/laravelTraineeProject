@@ -1,19 +1,16 @@
 <?php
 
-use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\CategoryController;
 use App\Http\Resources\UserResource;
 
 Route::get('/user', function (Request $request) {
-    return  new UserResource($request->user());
+    return new UserResource($request->user());
 })->middleware('auth:sanctum');
 
-Route::get('/products', [ProductController::class, 'index']);
+Route::apiResource('categories', CategoryController::class)->only(['index']);
 
-Route::get('/categories', function () {
-    return Category::all();
-});
+Route::apiResource('products', ProductController::class)->only(['index', 'store']);
 
-Route::apiResource('products', ProductController::class);

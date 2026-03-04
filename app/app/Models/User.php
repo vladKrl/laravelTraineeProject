@@ -54,7 +54,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
         $notification->afterCommit();
 
-        $this->notify($notification->delay(now()->addSeconds(1)));
+        $this->notify($notification->delay(now()->addSeconds()));
     }
 
     public function products(): \Illuminate\Database\Eloquent\Relations\HasMany

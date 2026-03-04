@@ -13,7 +13,7 @@ import Select from "../../components/SelectDefault";
 export default function CreateProduct() {
     const router = useRouter();
     const [categories, setCategories] = useState([]);
-    const [errors, setErrors] = useState([]);
+    const [errors, setErrors] = useState({});
 
     const [label, setLabel] = useState('');
     const [description, setDescription] = useState('');
@@ -22,7 +22,7 @@ export default function CreateProduct() {
 
     useEffect(() => {
         api.get('/api/categories').then(res => {
-            const formattedCategories = res.data.map(category => ({
+            const formattedCategories = res.data.data.map(category => ({
                 value: category.id,
                 label: category.label
             }));
@@ -39,7 +39,7 @@ export default function CreateProduct() {
     const submitForm = async e => {
         e.preventDefault();
 
-        setErrors([]);
+        setErrors({});
 
         try {
             await api.post('/api/products', {
@@ -60,6 +60,7 @@ export default function CreateProduct() {
     return (
         <div className={"max-w-2xl mx-auto p-4 bg-rose-100"}>
             <h1 className={"text-2xl font-bold mb-4"}>Create new product</h1>
+            <Errors errors={errors} />
             <form onSubmit={submitForm} autoComplete={"off"} className={"space-y-5"}>
                 <div>
                     <Label htmlFor="label" className={"block text-sm font-medium"}>Name of the product</Label>
@@ -72,7 +73,6 @@ export default function CreateProduct() {
                         required
                         autoComplete={"off"}
                     />
-                    <Errors errors={errors} />
                 </div>
 
                 <div>
@@ -89,7 +89,6 @@ export default function CreateProduct() {
                         autoComplete={"off"}
                     >
                     </textarea>
-                    <Errors errors={errors} />
                 </div>
 
                 <div>
