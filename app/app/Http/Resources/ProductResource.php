@@ -23,6 +23,8 @@ class ProductResource extends JsonResource
             'price' => isset($this->price) ? (float)$this->price : null,
             'status_id' => $this->status_id,
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),
+            'created_at' => $this->created_at,
+            'user' => new UserResource($this->whenLoaded('user')),
         ];
     }
 }

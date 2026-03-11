@@ -17,7 +17,7 @@ export const useAuth = ({middleware} = {}) => {
             .then(response => response.data.data)
             .catch(error => {
                 if (error.response.status !== 409)
-                    throw error
+                    throw error;
             })
         );
 
