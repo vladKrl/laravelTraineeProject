@@ -10,10 +10,12 @@ import Select from "../../../components/SelectDefault";
 import Button from "../../../components/Button";
 import {useAuth} from "../../../hooks/auth";
 
-export default function UpdateProduct() {
+export default function ProductEdit() {
     const router = useRouter();
     const [categories, setCategories] = useState([]);
+
     const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
     const [errors, setErrors] = useState({});
 
     const { id } = useParams();
@@ -33,7 +35,7 @@ export default function UpdateProduct() {
 
                 const product = productRes.data.data;
 
-                if (user && user.id !== product.user_id) {
+                if (user && Number(user.id) !== Number(product.user_id)) {
                     router.push(`/products/${id}`);
 
                     return;
@@ -57,12 +59,15 @@ export default function UpdateProduct() {
             } catch (error) {
                 console.error(error);
 
-                if (error.response?.status === 404) router.push('/');
-            }
-        };
+                if (error.response?.status === 404) {
+                    return router.push('/');
+                }
 
-        if (user)
-            fetchData();
+                router.push(`/products/${id}`);
+            }
+        }
+
+        if (user) fetchData();
     }, [id, user, router]);
 
     const handleCategoryChange = (selectedOptions) => {
@@ -74,6 +79,7 @@ export default function UpdateProduct() {
     const submitForm = async e => {
         e.preventDefault();
 
+        setSaving(true);
         setErrors({});
 
         try {
@@ -89,17 +95,18 @@ export default function UpdateProduct() {
             if (error.response?.status === 422) {
                 setErrors(error.response.data.errors);
             }
+        } finally {
+            setSaving(false);
         }
     }
 
     if (loading) {
-        return <p>Loading...</p>
+        return <div className={"p-10 text-center"}>Loading...</div>
     }
 
     return (
         <div className={"max-w-2xl mx-auto p-4 bg-rose-100"}>
             <h1 className={"text-2xl font-bold mb-4"}>Create new product</h1>
-            <Errors errors={errors} />
             <form onSubmit={submitForm} autoComplete={"off"} className={"space-y-5"}>
                 <div>
                     <Label htmlFor="label" className={"block text-sm font-medium"}>Name of the product</Label>
@@ -122,12 +129,16 @@ export default function UpdateProduct() {
                         value={description}
                         cols="30"
                         rows="10"
-                        className={"w-full border rounded p-2"}
+                        className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none ${
+                            errors.description ? 'border-red-500' : 'border-gray-300'
+                        }`}
                         onChange={e => setDescription(e.target.value)}
                         required
-                        autoComplete={"off"}
-                    >
-                    </textarea>
+                        disabled={saving}
+                    />
+                    {errors.description && (
+                        <Errors errors={[errors.description[0]]} />
+                    )}
                 </div>
 
                 <div>
@@ -156,8 +167,12 @@ export default function UpdateProduct() {
                     />
                 </div>
 
-                <div className={"bg-blue-600 text-white px-4 py-2 rounded"}>
-                    <Button>Publish edited product</Button>
+                <div className={"flex"}>
+                    <Button
+                        disabled={saving}
+                    >
+                        {saving ? 'Applying...' : 'Edit'}
+                    </Button>
                 </div>
             </form>
         </div>

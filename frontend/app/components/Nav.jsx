@@ -20,7 +20,14 @@ export default function Nav() {
                 ) : (
                     user ? (
                         <div className={"flex justify-between items-center"}>
-                            <span className={"text-sm font-bold pr-3"}>Hi, {user.name}!</span>
+                            <Link
+                                href={`/profile/${user.id}`}
+                                className={"flex items-center justify-center bg-rose-300 px-3 mx-2 rounded-sm"}
+                            >
+                                <span className={"text-gray-600 text-[15px] hover:scale-140 hover:text-gray-800 inline-block"}>
+                                    Hi, {user.name}!
+                                </span>
+                            </Link>
                             <a
                                 href="#"
                                 className={"hover:font-bold"}
@@ -28,7 +35,7 @@ export default function Nav() {
                             >
                                 Sign Out
                             </a>
-                            </div>
+                        </div>
                         ) : (
                         <div>
                             <Link className={"mr-5"} href={"/login"}>

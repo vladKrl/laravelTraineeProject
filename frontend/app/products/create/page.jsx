@@ -10,7 +10,7 @@ import Errors from "../../components/Errors";
 import Button from "../../components/Button";
 import Select from "../../components/SelectDefault";
 
-export default function CreateProduct() {
+export default function ProductCreate() {
     const router = useRouter();
     const [categories, setCategories] = useState([]);
     const [errors, setErrors] = useState({});
@@ -117,7 +117,7 @@ export default function CreateProduct() {
                     />
                 </div>
 
-                <div className={"bg-blue-600 text-white px-4 py-2 rounded"}>
+                <div className={"flex"}>
                     <Button>Publish your product</Button>
                 </div>
             </form>

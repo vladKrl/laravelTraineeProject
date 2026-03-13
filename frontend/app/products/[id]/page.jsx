@@ -7,7 +7,7 @@ import Button from "../../components/Button";
 import Link from "next/link";
 import {useAuth} from "../../hooks/auth";
 
-export default function ShowProduct() {
+export default function ProductShow() {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -33,28 +33,32 @@ export default function ShowProduct() {
     }
 
     useEffect(() => {
-        api.get(`/api/products/${id}`)
-            .then(res => {
-                setProduct(res.data.data);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error(err);
+        const fetchProduct = async () => {
+            try {
+                const response = await api.get(`/api/products/${id}`);
 
-                if (err.response?.status === 404) {
+                setProduct(response.data.data);
+                setLoading(false);
+            } catch (error) {
+                console.error(error);
+
+                if (error.response?.status === 404) {
                     setLoading(false);
 
-                    notFound();
+                    notFound(); //TODO: change with manually created not-found page and redirect with router
                 }
-            })
-    }, [id]);
+            }
+        }
+
+        if (id) fetchProduct();
+    }, [id, router]);
 
     if (loading) {
-        return <p>Loading...</p>
+        return <div className={"p-10 text-center"}>Loading...</div>
     }
 
     if (!product) {
-        return <p>No such product found.</p>
+        return <div className={"p-10 text-center"}>Such product is not found...</div>
     }
 
     return (
@@ -70,9 +74,9 @@ export default function ShowProduct() {
             <div className="mt-6 border-t pt-4">
                 <div>
                     <p>Seller: <strong>{product.user?.name}</strong></p>
-                    <p>Published: {product.created_at}</p>
+                    <p>Published: {new Date(product.created_at).toLocaleDateString()}</p>
                 </div>
-                    {user && user.id === product.user_id && (
+                    {user && Number(user.id) === Number(product.user_id) && (
                         <div className={"flex justify-evenly"}>
                             <div>
                                 <Link
