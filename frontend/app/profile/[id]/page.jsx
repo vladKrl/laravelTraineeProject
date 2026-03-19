@@ -45,9 +45,21 @@ export default function ProfileShow() {
 
     return (
         <div className={"max-w-6xl mx-auto px-4 py-8"}>
-            <section className={"flex  bg-white rounded-lg shadow-sm p-6 mb-8 flex-col md:flex-row items-center gap-6"}>
-                <div className={"flex w-32 h-32 bg-gray-200 rounded-full flex-shrink-0 items-center justify-center text-4xl text-gray-500"}>
-                    {profile.user.name[0]}
+            <section className={"flex flex-col bg-white rounded-lg shadow-sm p-6 mb-8 md:flex-row items-center gap-6"}>
+                <div>
+                    <div className={"relative w-30 h-30 rounded-full border-4 border-gray-100 shadow-inner group overflow-hidden"}>
+                        {profile.avatar ? (
+                            <img
+                                src={profile.avatar}
+                                alt="Avatar"
+                                className={"w-full h-full object-cover"}
+                            />
+                        ) : (
+                            <div className={"w-full h-full bg-gray-200 text-gray-500 flex items-center justify-center text-5xl font-bold uppercase"}>
+                                {profile.user.name[0]}
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div className={"flex-grow text-center md:text-left"}>

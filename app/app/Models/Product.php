@@ -26,4 +26,9 @@ class Product extends Model
     {
         return $this->belongsTo(Status::class, 'status_id');
     }
+
+    public function images(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ProductImage::class)->orderBy('position');
+    }
 }

@@ -15,4 +15,8 @@ Route::apiResource('categories', CategoryController::class)->only(['index']);
 
 Route::apiResource('products', ProductController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
 
+Route::post('products/{product}/images', [ProductController::class, 'uploadImages']);
+
 Route::apiResource('profile', ProfileController::class)->only(['show', 'update']);
+
+Route::post('profile/{profile}/avatar', [ProfileController::class, 'uploadAvatar']);

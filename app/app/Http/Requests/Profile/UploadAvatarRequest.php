@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Profile;
 
-use App\Models\Profile;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\File;
 
-class UpdateProfileRequest extends FormRequest
+class UploadAvatarRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,8 +23,12 @@ class UpdateProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'bio'   => 'nullable|string|max:255',
-            'avatar'   => 'nullable|string|max:255',
+            'avatar' => [
+                'required',
+                File::image()
+                    ->types(['jpg', 'jpeg', 'png', 'webp'])
+                    ->max(4096),
+            ],
         ];
     }
 }

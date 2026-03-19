@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Storage;
+
+class ProductImage extends Model
+{
+    protected $fillable = ['product_id', 'path', 'is_main', 'position'];
+
+    protected function path(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value) {
+                if (!$value) {
+                    return null;
+                }
+
+                return Storage::disk('public')->url($value);
+            }
+        );
+    }
+}

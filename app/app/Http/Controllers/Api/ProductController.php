@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreProductRequest;
+use App\Http\Requests\Product\StoreProductRequest;
+use App\Http\Requests\Product\UploadProductImagesRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -73,5 +74,27 @@ class ProductController extends Controller implements HasMiddleware
         $product->delete();
 
         return response()->noContent();
+    }
+
+    public function uploadImages(UploadProductImagesRequest $request, Product $product): \Illuminate\Http\JsonResponse
+    {
+        $productImages = [];
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                $imagePath = $file->store("products/{$product->id}", 'public');
+
+                $image = $product->images()->create([
+                    'path' => $imagePath,
+                    'is_main' => $product->images()->count() === 0,
+                ]);
+
+                $productImages[] = $image;
+            }
+        }
+
+        return response()->json([
+            'data' => $productImages,
+        ]);
     }
 }

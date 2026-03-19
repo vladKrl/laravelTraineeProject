@@ -8,13 +8,14 @@ import Link from 'next/link';
 import Button from "../../../components/Button";
 import Errors from "../../../components/Errors";
 import Label from "../../../components/Label";
+import AvatarUpload from "../../../components/profiles/AvatarUpload";
 
 export default function ProfileEdit() {
     const { id } = useParams();
     const router = useRouter();
     const { user } = useAuth();
 
-    const [bio, setBio] = useState('');
+    const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [errors, setErrors] = useState({})
@@ -24,7 +25,8 @@ export default function ProfileEdit() {
             try {
                 const response = await api.get(`/api/profile/${id}`);
 
-                setBio(response.data.data.bio || '');
+                setProfile(response.data.data);
+
                 setLoading(false);
             } catch (error) {
                 console.error(error);
@@ -38,7 +40,7 @@ export default function ProfileEdit() {
         }
 
         if (user) fetchProfile();
-    }, [id, router])
+    }, [user, id, router])
 
     useEffect(() => {
         if (user && Number(user.id) !== Number(id)) {
@@ -53,7 +55,7 @@ export default function ProfileEdit() {
         setErrors({});
 
         try {
-            await api.put(`/api/profile/${id}`, { bio });
+            await api.put(`/api/profile/${id}`, { bio: profile.bio });
 
             router.push(`/profile/${id}`);
         } catch (error) {
@@ -65,6 +67,13 @@ export default function ProfileEdit() {
         } finally {
             setSaving(false);
         }
+    }
+
+    const handleAvatarUpdated = (updatedProfile) => {
+        setProfile(currentProfile => ({
+            ...currentProfile,
+            avatar: updatedProfile.avatar
+        }));
     }
 
     if (loading) {
@@ -81,6 +90,11 @@ export default function ProfileEdit() {
                     </Link>
                 </div>
 
+                <AvatarUpload
+                    profile={profile}
+                    onAvatarUpdated={handleAvatarUpdated}
+                />
+
                 <form onSubmit={submitForm} className={"space-y-6"}>
                     <div>
                         <Label htmlFor="bio" className={"block text-sm font-medium text-gray-700 mb-2"}>
@@ -93,15 +107,15 @@ export default function ProfileEdit() {
                                 errors.bio ? 'border-red-500' : 'border-gray-300'
                             }`}
                             placeholder="Tell something about yourself..."
-                            value={bio}
-                            onChange={(e) => setBio(e.target.value)}
+                            value={profile.bio || ''}
+                            onChange={(e) => setProfile({...profile, bio: e.target.value})}
                             disabled={saving}
                         />
                         {errors.bio && (
                             <Errors errors={[errors.bio[0]]} />
                         )}
                         <p className={"mt-2 text-xs text-gray-400"}>
-                            {bio.length} / 255 characters
+                            {profile.bio?.length} / 255 characters
                         </p>
                     </div>
 
