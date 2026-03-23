@@ -7,10 +7,12 @@ use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UploadProductImagesRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
+use App\Models\ProductImage;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller implements HasMiddleware
 {
@@ -25,7 +27,7 @@ class ProductController extends Controller implements HasMiddleware
 
     public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $products = Product::with('categories')->paginate(12);
+        $products = Product::with(['categories', 'images'])->paginate(12);
         return ProductResource::collection($products);
     }
 
@@ -42,12 +44,23 @@ class ProductController extends Controller implements HasMiddleware
 
         $product->categories()->sync($categories);
 
-        return new ProductResource($product->load('categories'));
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $image) {
+                $path = $image->store('products', 'public');
+                $product->images()->create([
+                    'path' => $path,
+                    'is_main' => $index === 0,
+                    'position' => $index,
+                ]);
+            }
+        }
+
+        return new ProductResource($product->load(['categories', 'images']));
     }
 
     public function show(Product $product): ProductResource
     {
-        $product->load(['categories', 'user']);
+        $product->load(['categories', 'user', 'images']);
 
         return new ProductResource($product);
     }
@@ -64,7 +77,7 @@ class ProductController extends Controller implements HasMiddleware
             $product->categories()->sync($request->categories);
         }
 
-        return new ProductResource($product->load('categories'));
+        return new ProductResource($product->load(['categories', 'images']));
     }
 
     public function destroy(Product $product): \Illuminate\Http\Response
@@ -78,6 +91,18 @@ class ProductController extends Controller implements HasMiddleware
 
     public function uploadImages(UploadProductImagesRequest $request, Product $product): \Illuminate\Http\JsonResponse
     {
+        $this->authorize('update', $product);
+
+        $savedImagesCount = $product->images()->count();
+        $newImagesCount = count($request->file('images'));
+
+        if (($savedImagesCount + $newImagesCount) > 9) {
+            return response()->json([
+                'message' => 'The max number of images is 9!',
+                'errors' => ['images' => ['9 images allowed maximum.']]
+            ], 422);
+        }
+
         $productImages = [];
 
         if ($request->hasFile('images')) {
@@ -87,6 +112,7 @@ class ProductController extends Controller implements HasMiddleware
                 $image = $product->images()->create([
                     'path' => $imagePath,
                     'is_main' => $product->images()->count() === 0,
+                    'position' => count($productImages) + $savedImagesCount,
                 ]);
 
                 $productImages[] = $image;
@@ -95,6 +121,36 @@ class ProductController extends Controller implements HasMiddleware
 
         return response()->json([
             'data' => $productImages,
+        ]);
+    }
+
+    public function deleteImage(Product $product, ProductImage $productImage): \Illuminate\Http\Response
+    {
+        $this->authorize('update', $product);
+
+        Storage::disk('public')->delete($productImage->getRawOriginal('path'));
+
+        $productImage->delete();
+
+        $this->rearrangeMainImage($product);
+
+        return response()->noContent();
+    }
+
+    protected function rearrangeMainImage(Product $product)
+    {
+        $images = $product->images;
+
+        if ($images->isEmpty()){
+            return null;
+        }
+
+        if (!$images->contains('is_main', true)) {
+            return null;
+        }
+
+        $images[0]->update([
+            'is_main' => true,
         ]);
     }
 }

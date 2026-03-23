@@ -4,13 +4,21 @@ import {useAuth} from "../../hooks/auth";
 export default function ProductCard({ product }) {
     const { user } = useAuth();
 
+    const mainImage = product.images?.find(img => img.is_main)
+        || product.images?.[0]
+        || null;
+
+    const mainImageUrl = mainImage ? mainImage.path : 'https://placehold.co/400x300';
+
+    console.log(mainImageUrl);
+
     const categories = product.categories || [];
 
     return (
         <div className={"max-w-sm w-full bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all flex flex-col h-full"}>
             <div className="relative">
                 <img
-                    src="https://placehold.co/400x300"
+                    src={mainImageUrl}
                     alt={product.label}
                     className="w-full h-52 object-cover"
                 />

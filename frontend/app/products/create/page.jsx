@@ -9,16 +9,21 @@ import Input from "../../components/Input";
 import Errors from "../../components/Errors";
 import Button from "../../components/Button";
 import Select from "../../components/SelectDefault";
+import ProductImagesUpload from "../../components/products/ProductImagesUpload";
 
 export default function ProductCreate() {
     const router = useRouter();
     const [categories, setCategories] = useState([]);
-    const [errors, setErrors] = useState({});
 
     const [label, setLabel] = useState('');
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState('');
     const [selectedCategories, setSelectedCategories] = useState([]);
+
+    const [saving, setSaving] = useState(false);
+    const [errors, setErrors] = useState({});
+
+    const [selectedFiles, setSelectedFiles] = useState([]);
 
     useEffect(() => {
         api.get('/api/categories').then(res => {
@@ -39,14 +44,28 @@ export default function ProductCreate() {
     const submitForm = async e => {
         e.preventDefault();
 
+        setSaving(true);
         setErrors({});
 
+        const formData = new FormData();
+
+        formData.append('label', label);
+        formData.append('description', description);
+        formData.append('price', price);
+
+        selectedCategories.forEach(category => {
+            formData.append('categories[]', category);
+        });
+
+        selectedFiles.forEach(file => {
+           formData.append('images[]', file);
+        });
+
         try {
-            await api.post('/api/products', {
-                label,
-                description,
-                price,
-                categories: selectedCategories
+            await api.post('/api/products', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
             });
 
             router.push('/products');
@@ -54,13 +73,15 @@ export default function ProductCreate() {
             if (error.response?.status === 422) {
                 setErrors(error.response.data.errors);
             }
+        } finally {
+            setSaving(false);
         }
     }
 
     return (
         <div className={"max-w-2xl mx-auto p-4 bg-rose-100"}>
             <h1 className={"text-2xl font-bold mb-4"}>Create new product</h1>
-            <Errors errors={errors} />
+
             <form onSubmit={submitForm} autoComplete={"off"} className={"space-y-5"}>
                 <div>
                     <Label htmlFor="label" className={"block text-sm font-medium"}>Name of the product</Label>
@@ -83,12 +104,17 @@ export default function ProductCreate() {
                         value={description}
                         cols="30"
                         rows="10"
-                        className={"w-full border rounded p-2"}
+                        className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none ${
+                            errors.description ? 'border-red-500' : 'border-gray-300'
+                        }`}
                         onChange={e => setDescription(e.target.value)}
                         required
-                        autoComplete={"off"}
-                    >
-                    </textarea>
+                        disabled={saving}
+                    />
+                    <span className={` ${description.length < 10 ? 'text-red-500' : ''}`}>{description.length}</span><span>/255</span>
+                    {errors.description && (
+                        <Errors errors={[errors.description[0]]} />
+                    )}
                 </div>
 
                 <div>
@@ -101,6 +127,15 @@ export default function ProductCreate() {
                         value={categories.filter(option => selectedCategories.includes(option.value))}
                         onChange={handleCategoryChange}
                         noOptionsMessage={() => 'No categories found'}
+                    />
+                </div>
+
+                <div className="bg-white p-6 rounded-xl shadow">
+                    <ProductImagesUpload
+                        existingImages={[]}
+                        selectedImages={selectedFiles}
+                        onImagesSelected={setSelectedFiles}
+                        onDeleteExisting={() => {}}
                     />
                 </div>
 

@@ -12,7 +12,7 @@ class UploadProductImagesRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return $this->user()->can('update', $this->route('product'));
     }
 
     /**
@@ -23,7 +23,7 @@ class UploadProductImagesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'images' => 'required|array|9',
+            'images' => 'required|array|max:9',
             'images.*' => [
                 File::image()
                     ->types(['jpg', 'jpeg', 'png', 'webp'])

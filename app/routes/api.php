@@ -17,6 +17,8 @@ Route::apiResource('products', ProductController::class)->only(['index', 'store'
 
 Route::post('products/{product}/images', [ProductController::class, 'uploadImages']);
 
+Route::delete('products/{product}/images/{productImage}', [ProductController::class, 'deleteImage']);
+
 Route::apiResource('profile', ProfileController::class)->only(['show', 'update']);
 
 Route::post('profile/{profile}/avatar', [ProfileController::class, 'uploadAvatar']);

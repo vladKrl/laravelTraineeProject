@@ -8,6 +8,7 @@ import Label from "../../../components/Label";
 import Input from "../../../components/Input";
 import Select from "../../../components/SelectDefault";
 import Button from "../../../components/Button";
+import ProductImagesUpload from "../../../components/products/ProductImagesUpload";
 import {useAuth} from "../../../hooks/auth";
 
 export default function ProductEdit() {
@@ -24,6 +25,10 @@ export default function ProductEdit() {
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState('');
     const [selectedCategories, setSelectedCategories] = useState([]);
+
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [uploading, setUploading] = useState(false);
+    const [existingImages, setExistingImages] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -44,6 +49,7 @@ export default function ProductEdit() {
                 setLabel(product.label);
                 setDescription(product.description);
                 setPrice(product.price);
+                setExistingImages(product.images || []);
 
                 const selectedCategoriesIds = product.categories?.map(c => c.id) || [];
                 setSelectedCategories(selectedCategoriesIds);
@@ -100,6 +106,44 @@ export default function ProductEdit() {
         }
     }
 
+    const handleUpload = async () => {
+        if (selectedFiles.length === 0) {
+            return;
+        }
+
+        const formData = new FormData();
+
+        selectedFiles.forEach((file, index) => {
+            formData.append(`images[${index}]`, file);
+        });
+
+        setUploading(true);
+
+        try {
+            const response = await api.post(`/api/products/${id}/images`, formData);
+
+            setSelectedFiles([]);
+
+            if (response.data.data) {
+                setExistingImages(prev => [...prev, ...response.data.data]);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setUploading(false);
+        }
+    }
+
+    const handleDeleteExistingImages = async (imageId) => {
+        try {
+            await api.delete(`/api/products/${id}/images/${imageId}`);
+
+            setExistingImages(prev => prev.filter(img => img.id !== imageId));
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
     if (loading) {
         return <div className={"p-10 text-center"}>Loading...</div>
     }
@@ -136,6 +180,7 @@ export default function ProductEdit() {
                         required
                         disabled={saving}
                     />
+                    <span className={` ${description.length < 10 ? 'text-red-500' : ''}`}>{description.length}</span><span>/255</span>
                     {errors.description && (
                         <Errors errors={[errors.description[0]]} />
                     )}
@@ -165,6 +210,24 @@ export default function ProductEdit() {
                         required
                         autoComplete={"off"}
                     />
+                </div>
+
+                <div className={"bg-white p-6 rounded-xl shadow"}>
+                    <ProductImagesUpload
+                        existingImages={existingImages}
+                        selectedImages={selectedFiles}
+                        onImagesSelected={(files) => setSelectedFiles(files)}
+                        onDeleteExisting={handleDeleteExistingImages}
+                    />
+
+                    <Button
+                        type="button"
+                        onClick={handleUpload}
+                        disabled={uploading || selectedFiles.length === 0}
+                        className={"mt-6 w-full"}
+                    >
+                        {uploading ? 'Uploading...' : 'Save images'}
+                    </Button>
                 </div>
 
                 <div className={"flex"}>

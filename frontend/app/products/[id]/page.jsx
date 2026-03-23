@@ -6,11 +6,14 @@ import api from "../../../utils/api";
 import Button from "../../components/Button";
 import Link from "next/link";
 import {useAuth} from "../../hooks/auth";
+import ProductImagesShow from "../../components/products/ProductImagesShow";
 
 export default function ProductShow() {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
+    
+    const [images, setImages] = useState([]);
 
     const router = useRouter();
 
@@ -38,6 +41,11 @@ export default function ProductShow() {
                 const response = await api.get(`/api/products/${id}`);
 
                 setProduct(response.data.data);
+
+                if (product) {
+                    setImages(product.images || []);
+                }
+
                 setLoading(false);
             } catch (error) {
                 console.error(error);
@@ -51,7 +59,7 @@ export default function ProductShow() {
         }
 
         if (id) fetchProduct();
-    }, [id, router]);
+    }, [id, router, product]);
 
     if (loading) {
         return <div className={"p-10 text-center"}>Loading...</div>
@@ -62,15 +70,20 @@ export default function ProductShow() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto p-6">
+        <div className="max-w-5xl mx-auto p-6">
             <h1 className="text-3xl font-bold">{product.label}</h1>
             <p className="text-2xl text-600 font-semibold my-4">{product.price} CURRENCY LATER</p>
-
-            <div className="bg-gray-100 p-4 rounded-lg">
-                <h2 className="font-bold">Description:</h2>
-                <p>{product.description}</p>
+            <div className={"grid p-10 grid-cols-2 gap-8 bg-gray-100 rounded-lg "}>
+                <div>
+                    <h2 className="font-bold">Description:</h2>
+                    <p>{product.description}</p>
+                </div>
+                <div className={"w-full"}>
+                    <ProductImagesShow
+                        images={images}
+                    />
+                </div>
             </div>
-
             <div className="mt-6 border-t pt-4">
                 <div>
                     <p>Seller: <strong>{product.user?.name}</strong></p>
