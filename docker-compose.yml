@@ -14,6 +14,7 @@ services:
       XDG_CONFIG_HOME: ${PSYSH_CONFIG_DIR_PATH}
       PSYSH_CONFIG_DIR: ${PSYSH_CONFIG_DIR_PATH}
       HOME: ${PSYSH_CONFIG_DIR_PATH}
+
   frontend:
     image: node:20-alpine
     volumes:
@@ -27,6 +28,7 @@ services:
       - NEXT_PUBLIC_API_URL_SERVER=http://nginx:80
       - NEXT_PUBLIC_API_URL_BROWSER=http://localhost:80
     command: sh -c "cd /var/www/frontend && npm install && npm run dev -- -H 0.0.0.0 -p 3000"
+
   db:
     volumes:
       - pgdata-volume:/var/lib/postgresql/data
@@ -37,6 +39,7 @@ services:
       - "${POSTGRESQL_HOST_PORT}:5432"
     networks:
       - single-net
+
   nginx:
     image: nginx
     volumes:
@@ -48,9 +51,46 @@ services:
       - php
     networks:
       - single-net
+
+  elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.3.2
+    environment:
+      - node.name=elastic
+      - cluster.name=elastic-docker-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - laravelelastic:/usr/share/elasticsearch/data
+    ports:
+      - "${FORWARD_ELASTIC_PORT:-9200}:9200"
+    networks:
+      - single-net
+    restart: unless-stopped
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.3.2
+    ports:
+      - "${FORWARD_KIBANA_PORT:-5601}:5601"
+    environment:
+      ELASTICSEARCH_HOSTS: "http://elastic:${FORWARD_ELASTIC_PORT:-9200}"
+    networks:
+      - single-net
+    depends_on:
+      - elastic
+    restart: unless-stopped
+
 volumes:
   pgdata-volume:
   node_modules:
+  laravelelastic:
+    driver: local
+
 networks:
   single-net:
     driver: bridge

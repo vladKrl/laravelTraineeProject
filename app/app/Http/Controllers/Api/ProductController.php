@@ -8,6 +8,7 @@ use App\Http\Requests\Product\UploadProductImagesRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Models\ProductImage;
+use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -25,9 +26,20 @@ class ProductController extends Controller implements HasMiddleware
         ];
     }
 
-    public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $products = Product::with(['categories', 'images'])->paginate(12);
+        $search = $request->input('search');
+
+        if ($search) {
+            $products = Product::search($search)
+                ->query(function ($builder) {
+                    $builder->with(['categories', 'images']);
+                })
+                ->paginate(12);
+        } else {
+            $products = Product::with(['categories', 'images'])->paginate(12);
+        }
+
         return ProductResource::collection($products);
     }
 

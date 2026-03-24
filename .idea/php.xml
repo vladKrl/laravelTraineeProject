@@ -262,6 +262,17 @@
       <path value="$PROJECT_DIR$/app/vendor/rcrowe/twigbridge" />
       <path value="$PROJECT_DIR$/app/vendor/twig/twig" />
       <path value="$PROJECT_DIR$/app/vendor/laravel/sanctum" />
+      <path value="$PROJECT_DIR$/app/vendor/laravel/scout" />
+      <path value="$PROJECT_DIR$/app/vendor/elastic/transport" />
+      <path value="$PROJECT_DIR$/app/vendor/php-http/httplug" />
+      <path value="$PROJECT_DIR$/app/vendor/php-http/promise" />
+      <path value="$PROJECT_DIR$/app/vendor/php-http/discovery" />
+      <path value="$PROJECT_DIR$/app/vendor/symfony/polyfill-php82" />
+      <path value="$PROJECT_DIR$/app/vendor/open-telemetry/api" />
+      <path value="$PROJECT_DIR$/app/vendor/open-telemetry/context" />
+      <path value="$PROJECT_DIR$/app/vendor/jeroen-g/explorer" />
+      <path value="$PROJECT_DIR$/app/vendor/webmozart/assert" />
+      <path value="$PROJECT_DIR$/app/vendor/elasticsearch/elasticsearch" />
     </include_path>
   </component>
   <component name="PhpInterpreters">

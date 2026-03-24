@@ -3,16 +3,25 @@
 import { useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
 import api from "../../../utils/api";
+import { useSearchParams } from "next/navigation";
 
 export default function ProductList() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const searchParams = useSearchParams();
+
+    const currentSearch = searchParams.get('search') || '';
+
     useEffect(() => {
         let mounted = true;
+
         setLoading(true);
-        api.get("/api/products")
+
+        const url = currentSearch ? `/api/products?search=${encodeURIComponent(currentSearch)}` : "/api/products";
+
+        api.get(url)
             .then(r => {
                 if (!mounted) return;
                 const raw = r.data.data ?? r.data;
@@ -25,7 +34,7 @@ export default function ProductList() {
             .finally(() => { if (mounted) setLoading(false); });
 
         return () => { mounted = false; };
-    }, []);
+    }, [currentSearch]);
 
     if (loading) {
         return <div className={"p-10 text-center"}>Loading...</div>
@@ -35,7 +44,9 @@ export default function ProductList() {
         return <div>Error: {String(error.message ?? error)}</div>;
     }
 
-    if (!products.length) return <div>No products found</div>;
+    if (!products.length) {
+        return <div>No products found</div>;
+    }
 
     return (
         <div className={"grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-4"}>
