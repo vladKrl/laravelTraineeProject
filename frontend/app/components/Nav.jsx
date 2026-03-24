@@ -53,7 +53,7 @@ export default function Nav() {
                             ) : (
                             <div>
                                 <Link className={"mr-5"} href={"/login"}>
-                                    Sing In
+                                    Sign In
                                 </Link>
                                 <Link href={"/register"}>
                                     Register
