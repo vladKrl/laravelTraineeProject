@@ -19,8 +19,9 @@ export default function ProductEdit() {
     const [saving, setSaving] = useState(false);
     const [errors, setErrors] = useState({});
 
-    const { id } = useParams();
     const { user } = useAuth({middleware: 'auth'});
+
+    const { id } = useParams();
     const [label, setLabel] = useState('');
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState('');
@@ -150,7 +151,7 @@ export default function ProductEdit() {
 
     return (
         <div className={"max-w-2xl mx-auto p-4 bg-rose-100"}>
-            <h1 className={"text-2xl font-bold mb-4"}>Create new product</h1>
+            <h1 className={"text-2xl font-bold mb-4"}>Edit this product</h1>
             <form onSubmit={submitForm} autoComplete={"off"} className={"space-y-5"}>
                 <div>
                     <Label htmlFor="label" className={"block text-sm font-medium"}>Name of the product</Label>

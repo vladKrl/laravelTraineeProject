@@ -6,6 +6,7 @@ use App\Http\Resources\UserResource;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\ConversationController;
 
 Route::get('/user', function (Request $request) {
     return new UserResource($request->user());
@@ -17,8 +18,12 @@ Route::apiResource('products', ProductController::class)->only(['index', 'store'
 
 Route::post('products/{product}/images', [ProductController::class, 'uploadImages']);
 
-Route::delete('products/{product}/images/{productImage}', [ProductController::class, 'deleteImage']);
+Route::delete('products/{product}/images/{image}', [ProductController::class, 'deleteImage'])->scopeBindings();
 
 Route::apiResource('profile', ProfileController::class)->only(['show', 'update']);
 
 Route::post('profile/{profile}/avatar', [ProfileController::class, 'uploadAvatar']);
+
+Route::apiResource('conversations', ConversationController::class)->only(['index', 'store', 'show']);
+
+Route::post('conversations/{conversation}/messages', [ConversationController::class, 'sendMessage']);

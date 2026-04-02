@@ -14,6 +14,8 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use JeroenG\Explorer\Domain\Syntax\Terms;
+use JeroenG\Explorer\Domain\Syntax\Nested;
 
 class ProductController extends Controller implements HasMiddleware
 {
@@ -29,16 +31,31 @@ class ProductController extends Controller implements HasMiddleware
     public function index(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $search = $request->input('search');
+        $categoryIds = $request->query('category');
 
-        if ($search) {
-            $products = Product::search($search)
-                ->query(function ($builder) {
-                    $builder->with(['categories', 'images']);
-                })
-                ->paginate(12);
-        } else {
-            $products = Product::with(['categories', 'images'])->paginate(12);
+        if (!$search && !$categoryIds) {
+            $products = Product::with(['categories', 'images', 'mainImage'])->paginate(12);
+            return ProductResource::collection($products);
         }
+
+        $scout = Product::search($search ?? '');
+
+        if ($categoryIds) {
+            $idsArray = explode(',', $categoryIds);
+
+            $scout->must(
+                new Nested(
+                    'categories',
+                    new Terms('categories.id', $idsArray),
+                )
+            );
+        }
+
+        $products = $scout
+            ->query(function ($builder) {
+                $builder->with(['categories', 'images', 'mainImage']);
+            })
+            ->paginate(12);
 
         return ProductResource::collection($products);
     }
@@ -136,13 +153,13 @@ class ProductController extends Controller implements HasMiddleware
         ]);
     }
 
-    public function deleteImage(Product $product, ProductImage $productImage): \Illuminate\Http\Response
+    public function deleteImage(Product $product, ProductImage $image): \Illuminate\Http\Response
     {
         $this->authorize('update', $product);
 
-        Storage::disk('public')->delete($productImage->getRawOriginal('path'));
+        Storage::disk('public')->delete($image->getRawOriginal('path'));
 
-        $productImage->delete();
+        $image->delete();
 
         $this->rearrangeMainImage($product);
 
@@ -151,18 +168,18 @@ class ProductController extends Controller implements HasMiddleware
 
     protected function rearrangeMainImage(Product $product)
     {
-        $images = $product->images;
+        $images = $product->images()->get();
 
         if ($images->isEmpty()){
             return null;
         }
 
         if (!$images->contains('is_main', true)) {
-            return null;
-        }
+            $product->images()->update(['is_main' => false]);
 
-        $images[0]->update([
-            'is_main' => true,
-        ]);
+            $images->first()->update([
+                'is_main' => true,
+            ]);
+        }
     }
 }

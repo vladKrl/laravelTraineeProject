@@ -1,20 +1,38 @@
 import Link from "next/link";
 import {useAuth} from "../hooks/auth";
-import {useState} from "react";
-import {useRouter} from "next/navigation";
+import {useEffect, useState} from "react";
+import {useRouter, useSearchParams} from "next/navigation";
 import Button from "./Button";
+import FilterBox from "./FilterBox";
 
 export default function Nav() {
     const {user, logout, isLoading} = useAuth();
     const [search, setSearch] = useState("");
+
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+
     const router = useRouter();
+
+    const searchParams = useSearchParams();
+
+    const searchQuery = searchParams.get('search') || '';
+
+    useEffect(() => {
+        setSearch(searchQuery);
+    }, [searchQuery]);
 
     const handleSearch = (e) => {
         e.preventDefault();
 
+        const params = new URLSearchParams(searchParams.toString());
+
         if (search.trim()) {
-            router.push(`/products?search=${encodeURIComponent(search)}`);
+            params.set('search', search);
+        } else {
+            params.delete('search');
         }
+
+        router.push(`/products?${params.toString()}`);
     }
 
     return (
@@ -79,8 +97,20 @@ export default function Nav() {
                         </Button>
                     </form>
                 </div>
+                <Button
+                    onClick={() => setIsFilterOpen(!isFilterOpen)}
+                >
+                    {isFilterOpen ? 'Close' : 'Filters 🔍'}
+                </Button>
             </div>
-
+            {isFilterOpen && (
+                <div className={"absolute top-20 right-0 bg-white shadow-xl z-50 p-4 border-b"}>
+                    <div className={"container mx-auto"}>
+                        <h3 className={"text-sm font-semibold mb-3 text-gray-500 uppercase"}>Choose the category:</h3>
+                        <FilterBox />
+                    </div>
+                </div>
+            )}
         </nav>
     );
 }

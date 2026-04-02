@@ -22,7 +22,8 @@ return [
         'register',
         'email/verification-notification',
         'user/password',
-        'user/profile-information'
+        'user/profile-information',
+        'broadcasting/auth',
     ],
 
     'allowed_methods' => ['*'],

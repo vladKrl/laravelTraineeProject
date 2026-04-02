@@ -6,6 +6,9 @@ services:
       dockerfile: php.Dockerfile
     expose:
       - "9000"
+    ports:
+      - "8080:8080"
+      - "8000:8000"
     depends_on:
       - db
     networks:
@@ -27,6 +30,10 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL_SERVER=http://nginx:80
       - NEXT_PUBLIC_API_URL_BROWSER=http://localhost:80
+      - NEXT_PUBLIC_REVERB_APP_KEY=tkbelbua5ir1k6br3eir
+      - NEXT_PUBLIC_REVERB_HOST=localhost
+      - NEXT_PUBLIC_REVERB_PORT=8080
+      - NEXT_PUBLIC_REVERB_SCHEME=http
     command: sh -c "cd /var/www/frontend && npm install && npm run dev -- -H 0.0.0.0 -p 3000"
 
   db:

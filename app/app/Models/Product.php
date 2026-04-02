@@ -35,6 +35,11 @@ class Product extends Model implements Explored
         return $this->hasMany(ProductImage::class)->orderBy('position');
     }
 
+    public function mainImage(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(ProductImage::class)->where('is_main', true);
+    }
+
     public function toSearchableArray(): array
     {
         return [

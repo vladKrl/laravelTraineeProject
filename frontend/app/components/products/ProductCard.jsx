@@ -4,13 +4,10 @@ import {useAuth} from "../../hooks/auth";
 export default function ProductCard({ product }) {
     const { user } = useAuth();
 
-    const mainImage = product.images?.find(img => img.is_main)
-        || product.images?.[0]
+    const mainImage = product.main_image
         || null;
 
     const mainImageUrl = mainImage ? mainImage.path : 'https://placehold.co/400x300';
-
-    console.log(mainImageUrl);
 
     const categories = product.categories || [];
 

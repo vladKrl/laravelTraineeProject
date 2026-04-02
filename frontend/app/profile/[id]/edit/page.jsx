@@ -13,7 +13,8 @@ import AvatarUpload from "../../../components/profiles/AvatarUpload";
 export default function ProfileEdit() {
     const { id } = useParams();
     const router = useRouter();
-    const { user } = useAuth();
+
+    const { user } = useAuth({middleware: 'auth'});
 
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -115,7 +116,7 @@ export default function ProfileEdit() {
                             <Errors errors={[errors.bio[0]]} />
                         )}
                         <p className={"mt-2 text-xs text-gray-400"}>
-                            {profile.bio?.length} / 255 characters
+                            {profile.bio?.length || 0} / 255 characters
                         </p>
                     </div>
 

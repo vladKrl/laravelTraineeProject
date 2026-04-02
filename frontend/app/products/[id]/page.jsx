@@ -7,6 +7,7 @@ import Button from "../../components/Button";
 import Link from "next/link";
 import {useAuth} from "../../hooks/auth";
 import ProductImagesShow from "../../components/products/ProductImagesShow";
+import ContactWithSeller from "../../components/products/ContactWithSeller";
 
 export default function ProductShow() {
     const { id } = useParams();
@@ -17,7 +18,7 @@ export default function ProductShow() {
 
     const router = useRouter();
 
-    const { user } = useAuth({middleware: 'auth'});
+    const { user } = useAuth();
 
     const handleDelete = async () => {
         const isConfirmed = window.confirm('Please confirm you want to delete your product (cannot be undone)!');
@@ -109,6 +110,11 @@ export default function ProductShow() {
                             </div>
                         </div>
                     )}
+                <div className="flex gap-4 w-full md:w-auto">
+                    {user && Number(user.id) !== Number(product.user_id) && (
+                        <ContactWithSeller productId={product.id} />
+                    )}
+                </div>
             </div>
         </div>
     )

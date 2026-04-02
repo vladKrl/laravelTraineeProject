@@ -12,16 +12,14 @@ export default function ProductList() {
 
     const searchParams = useSearchParams();
 
-    const currentSearch = searchParams.get('search') || '';
-
     useEffect(() => {
         let mounted = true;
 
         setLoading(true);
 
-        const url = currentSearch ? `/api/products?search=${encodeURIComponent(currentSearch)}` : "/api/products";
+        const params = Object.fromEntries(searchParams.entries());
 
-        api.get(url)
+        api.get('/api/products', {params})
             .then(r => {
                 if (!mounted) return;
                 const raw = r.data.data ?? r.data;
@@ -34,7 +32,7 @@ export default function ProductList() {
             .finally(() => { if (mounted) setLoading(false); });
 
         return () => { mounted = false; };
-    }, [currentSearch]);
+    }, [searchParams]);
 
     if (loading) {
         return <div className={"p-10 text-center"}>Loading...</div>

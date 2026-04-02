@@ -10,10 +10,13 @@ import Errors from "../../components/Errors";
 import Button from "../../components/Button";
 import Select from "../../components/SelectDefault";
 import ProductImagesUpload from "../../components/products/ProductImagesUpload";
+import {useAuth} from "../../hooks/auth";
 
 export default function ProductCreate() {
     const router = useRouter();
     const [categories, setCategories] = useState([]);
+
+    const { user } = useAuth({middleware: 'auth'});
 
     const [label, setLabel] = useState('');
     const [description, setDescription] = useState('');

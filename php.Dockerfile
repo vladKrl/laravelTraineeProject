@@ -23,7 +23,8 @@ RUN docker-php-ext-install bcmath \
     intl \
     pdo \
     pdo_pgsql \
-    gd
+    gd \
+    pcntl
 
 # Install composer
 COPY --from=composer /usr/bin/composer /usr/bin/composer

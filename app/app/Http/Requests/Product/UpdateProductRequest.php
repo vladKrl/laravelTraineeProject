@@ -2,10 +2,12 @@
 
 namespace App\Http\Requests\Product;
 
+use App\Models\Product;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\File;
 
-class UploadProductImagesRequest extends FormRequest
+class UpdateProductRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -18,17 +20,22 @@ class UploadProductImagesRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            'images' => 'required|array|max:9',
+            'label'       => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|required|string|min:10|max:10000',
+            'price'       => 'sometimes|required|numeric|min:0',
+            'categories'  => 'nullable|array',
+            'categories.*'=> 'exists:categories,id',
+            'images' => 'nullable|array|max:9',
             'images.*' => [
                 File::image()
                     ->types(['jpg', 'jpeg', 'png', 'webp'])
                     ->max(4096),
-                ],
+            ],
         ];
     }
 }

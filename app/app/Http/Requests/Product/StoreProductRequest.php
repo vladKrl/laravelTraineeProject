@@ -4,6 +4,7 @@ namespace App\Http\Requests\Product;
 
 use App\Models\Product;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\File;
 
 class StoreProductRequest extends FormRequest
 {
@@ -28,6 +29,12 @@ class StoreProductRequest extends FormRequest
             'price'       => 'required|numeric|min:0',
             'categories'  => 'nullable|array',
             'categories.*'=> 'exists:categories,id',
+            'images' => 'nullable|array|max:9',
+            'images.*' => [
+                File::image()
+                    ->types(['jpg', 'jpeg', 'png', 'webp'])
+                    ->max(4096),
+            ],
         ];
     }
 }

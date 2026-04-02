@@ -66,4 +66,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(Profile::class);
     }
+
+    public function conversations()
+    {
+        return Conversation::where('buyer_id', $this->id)->orWhere('seller_id', $this->id);
+    }
 }
