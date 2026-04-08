@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\MessageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Resources\UserResource;
@@ -26,4 +27,4 @@ Route::post('profile/{profile}/avatar', [ProfileController::class, 'uploadAvatar
 
 Route::apiResource('conversations', ConversationController::class)->only(['index', 'store', 'show']);
 
-Route::post('conversations/{conversation}/messages', [ConversationController::class, 'sendMessage']);
+Route::post('conversations/{conversation}/messages', [MessageController::class, 'store']);

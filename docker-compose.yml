@@ -92,10 +92,23 @@ services:
       - elastic
     restart: unless-stopped
 
+  redis:
+    image: redis:8.6.2-alpine
+    restart: always
+    ports:
+      - "${REDIS_PORT}:6379"
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - cache:/data
+    networks:
+      - single-net
+
 volumes:
   pgdata-volume:
   node_modules:
   laravelelastic:
+    driver: local
+  cache:
     driver: local
 
 networks:

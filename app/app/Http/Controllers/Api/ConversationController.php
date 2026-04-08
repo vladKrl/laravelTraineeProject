@@ -26,7 +26,7 @@ class ConversationController extends Controller
 
         $conversations = Conversation::where('buyer_id', $user->id)
             ->orWhere('seller_id', $user->id)
-            ->with(['product.images', 'latestMessage', 'seller.profile', 'buyer.profile'])
+            ->with(['product.images', 'product.mainImage', 'latestMessage', 'seller.profile', 'buyer.profile'])
             ->orderBy('last_message_at', 'desc')
             ->paginate(20);
 
@@ -59,29 +59,7 @@ class ConversationController extends Controller
 
         $conversation->load(['product.images', 'buyer', 'seller', 'latestMessage']);
 
-        broadcast(new MessageSent($message))->toOthers();
-
         return new ConversationResource($conversation);
-    }
-
-    public function sendMessage(Request $request, Conversation $conversation): MessageResource
-    {
-        $request->validate(['body' => 'required|string|max:2000']);
-
-        if (auth()->id() !== $conversation->buyer_id && auth()->id() !== $conversation->seller_id) {
-            abort(403);
-        }
-
-        $message = $conversation->messages()->create([
-            'user_id' => auth()->id(),
-            'body' => $request->body,
-        ]);
-
-        $conversation->update(['last_message_at' => now()]);
-
-        broadcast(new MessageSent($message))->toOthers();
-
-        return new MessageResource($message);
     }
 
     public function show(Conversation $conversation): ConversationResource

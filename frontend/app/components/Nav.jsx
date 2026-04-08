@@ -42,6 +42,11 @@ export default function Nav() {
                     <Link href={"/"} className={"mr-2 ml-2"}>Home</Link>
                     <Link href={"#"} className={"mr-2 ml-2"}>About</Link>
                     <Link href={"/products"} className={"mr-2 ml-2"}>Product Cards</Link>
+                    {user && (
+                        <div>
+                            <Link href={"/conversations"} className={"mr-2 ml-2"}>Conversations</Link>
+                        </div>
+                    )}
                 </ul>
             </div>
 

@@ -287,6 +287,7 @@
       <path value="$PROJECT_DIR$/app/vendor/react/socket" />
       <path value="$PROJECT_DIR$/app/vendor/evenement/evenement" />
       <path value="$PROJECT_DIR$/app/vendor/laravel/reverb" />
+      <path value="$PROJECT_DIR$/app/vendor/predis/predis" />
     </include_path>
   </component>
   <component name="PhpInterpreters">

@@ -21,6 +21,7 @@ class UserResource extends JsonResource
             'email_verified_at' => $this->email_verified_at,
             'products' => ProductResource::collection($this->whenLoaded('products')),
             'profile' => new ProfileResource($this->whenLoaded('profile')),
+            'is_online' => $this->isOnline(),
         ];
     }
 }

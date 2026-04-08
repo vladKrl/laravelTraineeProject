@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use JeroenG\Explorer\Domain\Syntax\Terms;
 use JeroenG\Explorer\Domain\Syntax\Nested;
+use Illuminate\Support\Facades\Cache;
 
 class ProductController extends Controller implements HasMiddleware
 {
@@ -89,9 +90,13 @@ class ProductController extends Controller implements HasMiddleware
 
     public function show(Product $product): ProductResource
     {
-        $product->load(['categories', 'user', 'images']);
+        $cacheKey = "product-show-{$product->id}";
 
-        return new ProductResource($product);
+        $productData = Cache::remember($cacheKey, now()->addHours(12), function () use ($product) {
+           return $product->load(['categories', 'user', 'images']);
+        });
+
+        return new ProductResource($productData);
     }
 
     public function update(StoreProductRequest $request, Product $product): ProductResource

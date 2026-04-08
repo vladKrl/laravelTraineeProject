@@ -13,6 +13,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/scout": "^10.0",
         "laravel/tinker": "^2.10.1",
+        "predis/predis": "^3.4",
         "rcrowe/twigbridge": "^0.14.6",
         "twig/twig": "^3.23"
     },
