@@ -80,4 +80,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return Cache::has("user-is-online-{$this->id}");
     }
+
+    public function favoriteProducts()
+    {
+        return $this->belongsToMany(Product::class, 'favorites')->withTimestamps();
+    }
 }

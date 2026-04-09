@@ -1,11 +1,12 @@
 import Link from "next/link";
 import {useAuth} from "../../hooks/auth";
+import LikeButton from "../favorites/LikeButton";
+import ContactWithSeller from "./ContactWithSeller";
 
 export default function ProductCard({ product }) {
     const { user } = useAuth();
 
-    const mainImage = product.main_image
-        || null;
+    const mainImage = product.main_image || null;
 
     const mainImageUrl = mainImage ? mainImage.path : 'https://placehold.co/400x300';
 
@@ -54,10 +55,11 @@ export default function ProductCard({ product }) {
                     </div>
                 </div>
 
-                {product.user_id !== user?.id && (
-                    <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-lg transition-colors">
-                        Add to cart
-                    </button>
+                {Number(product.user_id) !== Number(user?.id) && (
+                    <div className={"flex gap-3"}>
+                        <LikeButton productId={product.id} initialIsFavorite={product.is_favorite} />
+                        <ContactWithSeller productId={product.id} />
+                    </div>
                 )}
             </div>
         </div>

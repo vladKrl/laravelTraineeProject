@@ -1,39 +1,8 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
-import api from "../../../utils/api";
-import { useSearchParams } from "next/navigation";
 
-export default function ProductList() {
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    const searchParams = useSearchParams();
-
-    useEffect(() => {
-        let mounted = true;
-
-        setLoading(true);
-
-        const params = Object.fromEntries(searchParams.entries());
-
-        api.get('/api/products', {params})
-            .then(r => {
-                if (!mounted) return;
-                const raw = r.data.data ?? r.data;
-                setProducts(Array.isArray(raw) ? raw : (raw ? [raw] : []));
-            })
-            .catch(e => {
-                console.error(e);
-                if (mounted) setError(e);
-            })
-            .finally(() => { if (mounted) setLoading(false); });
-
-        return () => { mounted = false; };
-    }, [searchParams]);
-
+export default function ProductList({ products, loading, error }) {
     if (loading) {
         return <div className={"p-10 text-center"}>Loading...</div>
     }

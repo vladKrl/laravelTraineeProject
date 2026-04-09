@@ -40,11 +40,12 @@ export default function ProductShow() {
         const fetchProduct = async () => {
             try {
                 const response = await api.get(`/api/products/${id}`);
+                const productData = response.data.data;
 
-                setProduct(response.data.data);
+                setProduct(productData);
 
-                if (product) {
-                    setImages(product.images || []);
+                if (productData) {
+                    setImages(productData.images || []);
                 }
 
                 setLoading(false);
@@ -60,7 +61,7 @@ export default function ProductShow() {
         }
 
         if (id) fetchProduct();
-    }, [id, router, product]);
+    }, [id, router]);
 
     if (loading) {
         return <div className={"p-10 text-center"}>Loading...</div>

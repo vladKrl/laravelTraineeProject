@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\MessageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -28,3 +29,7 @@ Route::post('profile/{profile}/avatar', [ProfileController::class, 'uploadAvatar
 Route::apiResource('conversations', ConversationController::class)->only(['index', 'store', 'show']);
 
 Route::post('conversations/{conversation}/messages', [MessageController::class, 'store']);
+
+Route::post('products/{product}/favorites', [FavoriteController::class, 'toggle']);
+
+Route::get('favorites', [FavoriteController::class, 'index']);

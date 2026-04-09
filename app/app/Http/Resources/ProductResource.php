@@ -26,6 +26,9 @@ class ProductResource extends JsonResource
             'images' => ProductImageResource::collection($this->whenLoaded('images')),
             'main_image' => new ProductImageResource($this->whenLoaded('mainImage')),
             'created_at' => $this->created_at,
+            'is_favorite' => auth()->user()
+                ? auth()->user()->favoriteProducts()->where('product_id', $this->id)->exists()
+                : false,
             'user' => new UserResource($this->whenLoaded('user')),
         ];
     }
