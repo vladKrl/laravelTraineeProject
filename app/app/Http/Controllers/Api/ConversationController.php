@@ -8,11 +8,15 @@ use App\Http\Resources\ConversationResource;
 use App\Http\Resources\MessageResource;
 use App\Models\Conversation;
 use App\Models\Product;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 
-class ConversationController extends Controller
+class ConversationController extends Controller implements HasMiddleware
 {
+    use AuthorizesRequests;
+
     public static function middleware(): array
     {
         return [
@@ -42,6 +46,8 @@ class ConversationController extends Controller
 
         $product = Product::findOrFail($request->product_id);
 
+        $this->authorize('create', [Conversation::class, $product]);
+
         $buyerId = auth()->id();
 
         $conversation = Conversation::firstOrCreate([
@@ -64,9 +70,7 @@ class ConversationController extends Controller
 
     public function show(Conversation $conversation): ConversationResource
     {
-        if (auth()->id() !== $conversation->buyer_id && auth()->id() !== $conversation->seller_id) {
-            abort(403);
-        }
+        $this->authorize('participate', $conversation);
 
         return new ConversationResource($conversation->load(['messages', 'product', 'buyer', 'seller']));
     }

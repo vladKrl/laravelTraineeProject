@@ -103,6 +103,7 @@ export default function Nav() {
                     </form>
                 </div>
                 <Button
+                    className={"min-w-30"}
                     onClick={() => setIsFilterOpen(!isFilterOpen)}
                 >
                     {isFilterOpen ? 'Close' : 'Filters 🔍'}

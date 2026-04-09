@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 class ProductImage extends Model
 {
     protected $fillable = ['product_id', 'path', 'is_main', 'position'];
+    protected $touches = ['product'];
 
     protected function path(): Attribute
     {

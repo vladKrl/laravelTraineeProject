@@ -1,6 +1,6 @@
 'use client'
 
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {useParams, useRouter} from "next/navigation";
 import api from "../../../utils/api";
 import Link from "next/link";
@@ -13,6 +13,7 @@ export default function Sidebar({ currentUser }) {
 
     const [conversations, setConversations] = useState([]);
     const [onlineUsers, setOnlineUsers] = useState([]);
+    const [expandedUserId, setExpandedUserId] = useState(null);
 
     let currentUserId;
 
@@ -84,45 +85,90 @@ export default function Sidebar({ currentUser }) {
         })
     };
 
+    const groupedConversations = useMemo(() => {
+        return conversations.reduce((acc, conv) => {
+            const userId = conv.interlocutor.id;
+
+            if (!acc[userId]) {
+                acc[userId] = {
+                    interlocutor: conv.interlocutor,
+                    chats: []
+                };
+            }
+
+            acc[userId].chats.push(conv);
+
+            return acc;
+        }, {});
+    }, [conversations]);
+
     return (
         <div className="divide-y overflow-hidden">
             <h2 className="p-4 font-bold text-xl border-b">Messages</h2>
             <div className="overflow-y-auto h-full">
-                {conversations.map(conv => (
-                    <Link key={conv.id} href={`/conversations/${conv.id}`} className={`border-b border-gray-400 block p-4 ${(id && Number(id) === Number(conv.id) ) ? 'bg-gray-200 hover:bg-gray-300' : 'hover:bg-gray-200'} transition`}>
-                        <div className={"flex justify-center items-center gap-3"}>
-                            <div className="relative">
-                                {conv.interlocutor.profile.avatar ? (
-                                    <img alt="" src={conv.interlocutor?.profile.avatar} className={"max-w-12 min-w-12 min-h-12 rounded-full object-cover"}/>
-                                ) : (
-                                    <div className={"w-12 h-12 bg-gray-200 text-gray-500 flex items-center justify-center text-3xl font-bold uppercase rounded-full object-cover"}>
-                                        {conv.interlocutor?.name[0]}
-                                    </div>
-                                )}
-                                {onlineUsers.some(u => u.id === conv.interlocutor.id) &&
-                                    <span className={"absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"}></span>}
-                                <span className={"absolute top-0 text-blue-800 left-15 w-3 h-3"}>{conv.interlocutor?.name}</span>
-                            </div>
-                            <div className="flex-grow min-w-0">
-                                <div className={"flex justify-end gap-2 items-baseline"}>
-                                    <div className={"flex items-end flex-col"}>
-                                        <span>
-                                            <h4 className={"font-semibold truncate text-sm"}>Product: {conv.product.label}</h4>
-                                        </span>
-                                        <img className={"w-3 h-full origin-top-right scale-700 rounded"} src={conv.product.main_image ? conv.product.main_image.path : 'https://placehold.co/400x300'} alt=""/>
-                                    </div>
+                {Object.values(groupedConversations).map(group => {
+                    const userId = group.interlocutor.id;
+
+                    const isExpanded = expandedUserId === userId;
+
+                    return (
+                        <div key={userId} className={"border-b border-gray-300"}>
+                            <button
+                                className={"w-full flex items-center gap-3 p-4 bg-gray-50 hover:bg-gray-100 transition"}
+                                onClick={() => setExpandedUserId(isExpanded ? null : userId)}
+                            >
+                                <div className="relative">
+                                    {group.interlocutor.profile.avatar ? (
+                                        <img alt="" src={group.interlocutor.profile.avatar} className="max-w-12 min-w-12 min-h-12 rounded-full object-cover"/>
+                                    ) : (
+                                        <div className={"w-12 h-12 bg-gray-200 text-blue-500 flex items-center justify-center rounded-full font-bold"}>
+                                            {group.interlocutor.name[0]}
+                                        </div>
+                                    )}
+                                    {onlineUsers.some(u => u.id === group.interlocutor.id) &&
+                                        <span className={"absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"}></span>}
                                 </div>
-                                <p className="text-xs text-gray-500 truncate mt-1">
-                                    {conv.last_message?.user_id === currentUser?.id ? 'You: ' : ''}
-                                    {conv.last_message?.body || 'No messages'}
-                                </p>
-                                <span className="text-[10px] text-gray-600">
-                                        {new Date(conv.last_message?.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                <div className={"flex-grow text-left"}>
+                                    <h4 className={"font-bold text-sm"}>{group.interlocutor.name}</h4>
+                                    <p className={"text-xs text-gray-500"}>{group.chats.length} {group.chats.length === 1 ? 'conversation' : 'conversations'}</p>
+                                </div>
+                                <span className={`transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
+                                    ↓
                                 </span>
-                            </div>
+                            </button>
+
+                            {isExpanded && (
+                                <div className="bg-white">
+                                    {group.chats.map(conv => (
+                                        <Link
+                                            key={conv.id}
+                                            href={`/conversations/${conv.id}`}
+                                            className={`pl-12 pr-4 py-3 block border-t border-gray-100 ${(id && Number(id) === Number(conv.id)) ? 'bg-blue-50' : 'hover:bg-gray-50'}`}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <img
+                                                    alt=""
+                                                    src={conv.product.main_image?.path || 'https://placehold.co/50'}
+                                                    className={"w-12 h-12 rounded object-cover"}
+                                                />
+                                                <div className={"flex-grow min-w-0"}>
+                                                    <h5 className={"text-xs font-semibold truncate"}>{conv.product.label}</h5>
+                                                    <p className="text-xs text-gray-500 truncate mt-1">
+                                                        <span className={"text-gray-800"}>{conv.last_message?.user_id === currentUser?.id ? 'You: ' : ''}</span>
+                                                        {conv.last_message?.body || 'No messages'}
+                                                    </p>
+                                                    <span className={"text-[10px] text-gray-600"}>
+                                                        {new Date(conv.last_message?.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                    </Link>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );

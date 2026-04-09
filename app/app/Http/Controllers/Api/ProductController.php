@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\StoreProductRequest;
+use App\Http\Requests\Product\UpdateProductRequest;
 use App\Http\Requests\Product\UploadProductImagesRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
@@ -93,13 +94,13 @@ class ProductController extends Controller implements HasMiddleware
         $cacheKey = "product-show-{$product->id}";
 
         $productData = Cache::remember($cacheKey, now()->addHours(12), function () use ($product) {
-           return $product->load(['categories', 'user', 'images']);
+           return $product->load(['categories', 'user', 'images', 'mainImage']);
         });
 
         return new ProductResource($productData);
     }
 
-    public function update(StoreProductRequest $request, Product $product): ProductResource
+    public function update(UpdateProductRequest $request, Product $product): ProductResource
     {
         $this->authorize('update', $product);
 
@@ -109,6 +110,8 @@ class ProductController extends Controller implements HasMiddleware
 
         if ($request->has('categories')) {
             $product->categories()->sync($request->categories);
+
+            $product->touch();
         }
 
         return new ProductResource($product->load(['categories', 'images']));
