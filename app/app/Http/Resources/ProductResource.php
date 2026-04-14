@@ -29,6 +29,8 @@ class ProductResource extends JsonResource
             'is_favorite' => auth()->user()
                 ? auth()->user()->favoriteProducts()->where('product_id', $this->id)->exists()
                 : false,
+            'region' => new LocationResource($this->whenLoaded('region')),
+            'city' => new LocationResource($this->whenLoaded('city')),
             'user' => new UserResource($this->whenLoaded('user')),
         ];
     }

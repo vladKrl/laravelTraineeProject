@@ -16,7 +16,7 @@ class Product extends Model implements Explored
 {
     use HasFactory, SoftDeletes, Searchable;
 
-    protected $fillable = ['user_id', 'label', 'picture_link', 'description', 'price', 'status_id'];
+    protected $fillable = ['user_id', 'label', 'picture_link', 'description', 'price', 'status_id', 'region_id', 'city_id'];
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -41,6 +41,16 @@ class Product extends Model implements Explored
     public function mainImage(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(ProductImage::class)->where('is_main', true);
+    }
+
+    public function region(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Location::class, 'region_id');
+    }
+
+    public function city(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Location::class, 'city_id');
     }
 
     public function toSearchableArray(): array

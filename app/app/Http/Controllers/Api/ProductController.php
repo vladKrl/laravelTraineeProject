@@ -36,7 +36,7 @@ class ProductController extends Controller implements HasMiddleware
         $categoryIds = $request->query('category');
 
         if (!$search && !$categoryIds) {
-            $products = Product::with(['categories', 'images', 'mainImage'])->paginate(12);
+            $products = Product::with(['categories', 'user', 'images', 'mainImage', 'region', 'city'])->paginate(12);
             return ProductResource::collection($products);
         }
 
@@ -94,7 +94,7 @@ class ProductController extends Controller implements HasMiddleware
         $cacheKey = "product-show-{$product->id}";
 
         $productData = Cache::remember($cacheKey, now()->addHours(12), function () use ($product) {
-           return $product->load(['categories', 'user', 'images', 'mainImage']);
+           return $product->load(['categories', 'user', 'images', 'mainImage', 'region', 'city']);
         });
 
         return new ProductResource($productData);

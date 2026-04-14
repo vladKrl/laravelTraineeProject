@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Location;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\App;
 
@@ -26,6 +27,10 @@ class ProductFactory extends Factory
             'price' => $this->faker->randomFloat(2, 1, 100),
             'status_id' => Status::factory(),
             'created_at' => now(),
+            'region_id' => Location::factory(),
+            'city_id' => function (array $attributes) {
+                return Location::factory()->city($attributes['region_id'])->create()->id;
+            },
         ];
     }
 }

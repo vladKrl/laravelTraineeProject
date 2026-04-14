@@ -10,6 +10,7 @@ import Select from "../../../components/SelectDefault";
 import Button from "../../../components/Button";
 import ProductImagesUpload from "../../../components/products/ProductImagesUpload";
 import {useAuth} from "../../../hooks/auth";
+import LocationSelector from "../../../components/products/LocationSelector";
 
 export default function ProductEdit() {
     const router = useRouter();
@@ -25,7 +26,11 @@ export default function ProductEdit() {
     const [label, setLabel] = useState('');
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState('');
+
     const [selectedCategories, setSelectedCategories] = useState([]);
+
+    const [regionId, setRegionId] = useState(null);
+    const [cityId, setCityId] = useState(null);
 
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [uploading, setUploading] = useState(false);
@@ -51,6 +56,8 @@ export default function ProductEdit() {
                 setDescription(product.description);
                 setPrice(product.price);
                 setExistingImages(product.images || []);
+                setRegionId(product.region?.id);
+                setCityId(product.city?.id || null);
 
                 const selectedCategoriesIds = product.categories?.map(c => c.id) || [];
                 setSelectedCategories(selectedCategoriesIds);
@@ -94,7 +101,9 @@ export default function ProductEdit() {
                 label,
                 description,
                 price,
-                categories: selectedCategories
+                categories: selectedCategories,
+                region_id: regionId,
+                city_id: cityId,
             });
 
             router.push(`/products/${id}`);
@@ -197,6 +206,18 @@ export default function ProductEdit() {
                         value={categories.filter(option => selectedCategories.includes(option.value))}
                         onChange={handleCategoryChange}
                         noOptionsMessage={() => 'No categories found'}
+                    />
+                </div>
+
+                <div>
+                    <LocationSelector
+                        initialRegionId={regionId}
+                        initialCityId={cityId}
+                        onLocationChange={({region_id, city_id}) => {
+                            setRegionId(region_id);
+                            setCityId(city_id);
+                        }}
+                        errors={errors}
                     />
                 </div>
 

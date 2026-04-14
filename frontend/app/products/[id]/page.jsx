@@ -76,9 +76,16 @@ export default function ProductShow() {
             <h1 className="text-3xl font-bold">{product.label}</h1>
             <p className="text-2xl text-600 font-semibold my-4">{product.price} CURRENCY LATER</p>
             <div className={"grid p-10 grid-cols-2 gap-8 bg-gray-100 rounded-lg "}>
-                <div>
-                    <h2 className="font-bold">Description:</h2>
-                    <p>{product.description}</p>
+                <div className={"flex flex-col"}>
+                    <div className={"pb-[90%]"}>
+                        <h2 className="font-bold">Description:</h2>
+                        <p>{product.description}</p>
+                    </div>
+                    <div>
+                        <h2>
+                            Location: {product.region.name}{product.city ? `, ${product.city.name}` : ''}
+                        </h2>
+                    </div>
                 </div>
                 <div className={"w-full"}>
                     <ProductImagesShow

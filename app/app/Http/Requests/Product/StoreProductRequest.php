@@ -35,6 +35,8 @@ class StoreProductRequest extends FormRequest
                     ->types(['jpg', 'jpeg', 'png', 'webp'])
                     ->max(4096),
             ],
+            'region_id' => 'required|exists:locations,id,parent_id,NULL',
+            'city_id' => 'nullable|exists:locations,id',
         ];
     }
 }

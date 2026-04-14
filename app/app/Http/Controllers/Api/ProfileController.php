@@ -22,7 +22,7 @@ class ProfileController extends Controller implements HasMiddleware
 
     public function show(Profile $profile): ProfileResource
     {
-        $profile->load(['user.products', 'user.products.images']);
+        $profile->load(['user.products', 'user.products.images', 'user.products.mainImage']);
 
         return new ProfileResource($profile);
     }

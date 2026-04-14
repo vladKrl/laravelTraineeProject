@@ -11,6 +11,7 @@ import Button from "../../components/Button";
 import Select from "../../components/SelectDefault";
 import ProductImagesUpload from "../../components/products/ProductImagesUpload";
 import {useAuth} from "../../hooks/auth";
+import LocationSelector from "../../components/products/LocationSelector";
 
 export default function ProductCreate() {
     const router = useRouter();
@@ -21,7 +22,11 @@ export default function ProductCreate() {
     const [label, setLabel] = useState('');
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState('');
+
     const [selectedCategories, setSelectedCategories] = useState([]);
+
+    const [regionId, setRegionId] = useState(null);
+    const [cityId, setCityId] = useState(null);
 
     const [saving, setSaving] = useState(false);
     const [errors, setErrors] = useState({});
@@ -55,6 +60,8 @@ export default function ProductCreate() {
         formData.append('label', label);
         formData.append('description', description);
         formData.append('price', price);
+        formData.append('region_id', String(regionId ?? ''));
+        formData.append('city_id', String(cityId ?? ''));
 
         selectedCategories.forEach(category => {
             formData.append('categories[]', category);
@@ -130,6 +137,16 @@ export default function ProductCreate() {
                         value={categories.filter(option => selectedCategories.includes(option.value))}
                         onChange={handleCategoryChange}
                         noOptionsMessage={() => 'No categories found'}
+                    />
+                </div>
+
+                <div>
+                    <LocationSelector
+                        onLocationChange={({region_id, city_id}) => {
+                            setRegionId(region_id);
+                            setCityId(city_id);
+                        }}
+                        errors={errors}
                     />
                 </div>
 

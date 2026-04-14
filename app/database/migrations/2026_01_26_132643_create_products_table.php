@@ -19,6 +19,8 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->decimal('price', 10, 2);
             $table->foreignId('status_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('region_id')->constrained('locations');
+            $table->foreignId('city_id')->nullable()->constrained('locations');
             $table->softDeletesDatetime();
             $table->timestamps();
         });
