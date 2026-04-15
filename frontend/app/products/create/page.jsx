@@ -173,7 +173,11 @@ export default function ProductCreate() {
                 </div>
 
                 <div className={"flex"}>
-                    <Button>Publish your product</Button>
+                    <Button
+                        disabled={saving}
+                    >
+                        {saving ? 'Publishing...' : 'Publish your product'}
+                    </Button>
                 </div>
             </form>
         </div>

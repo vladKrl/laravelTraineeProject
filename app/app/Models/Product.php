@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ProductStatus;
 use App\Observers\ProductObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,7 +17,14 @@ class Product extends Model implements Explored
 {
     use HasFactory, SoftDeletes, Searchable;
 
-    protected $fillable = ['user_id', 'label', 'picture_link', 'description', 'price', 'status_id', 'region_id', 'city_id'];
+    protected $fillable = ['user_id', 'label', 'picture_link', 'description', 'price', 'status', 'region_id', 'city_id'];
+
+    protected function casts(): array
+    {
+        return [
+            'status' => ProductStatus::class,
+        ];
+    }
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -26,11 +34,6 @@ class Product extends Model implements Explored
     public function categories(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Category::class);
-    }
-
-    public function status(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(Status::class, 'status_id');
     }
 
     public function images(): \Illuminate\Database\Eloquent\Relations\HasMany

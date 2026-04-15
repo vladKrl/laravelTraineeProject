@@ -46,6 +46,7 @@ export default function Nav() {
                         <div>
                             <Link href={"/conversations"} className={"mr-2 ml-2"}>Conversations</Link>
                             <Link href={"/favorites"} className={"mr-2 ml-2"}>Favorites</Link>
+                            <Link href={"/products/archived"} className={"mr-2 ml-2"}>Archived</Link>
                         </div>
                     )}
                 </ul>

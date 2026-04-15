@@ -1,11 +1,11 @@
 'use client'
 
 import {useEffect, useState} from "react";
-import api from "../../utils/api";
-import {useAuth} from "../hooks/auth";
-import ProductList from "../components/products/ProductList";
+import api from "../../../utils/api";
+import {useAuth} from "../../hooks/auth";
+import ProductList from "../../components/products/ProductList";
 
-export default function FavoritesPage() {
+export default function ArchivedPage() {
     const { user } = useAuth({middleware: 'auth'});
 
     const [products, setProducts] = useState([]);
@@ -13,14 +13,14 @@ export default function FavoritesPage() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchFavoriteProducts = async () => {
+        const fetchArchivedProducts = async () => {
             try {
-                const response = await api.get('api/favorites');
+                const response = await api.get('api/products/archived');
 
                 setProducts(response.data.data);
             } catch (error) {
                 console.error(error);
-                
+
                 setError(error);
 
                 if (error.response?.status === 404) {
@@ -31,12 +31,13 @@ export default function FavoritesPage() {
             }
         }
 
-        fetchFavoriteProducts();
+        fetchArchivedProducts();
+
     }, []);
 
     return (
         <div className={"p-6"}>
-            <h1 className="text-2xl font-bold mb-4">You liked these Products!</h1>
+            <h1 className="text-2xl font-bold mb-4">You archived these Products!</h1>
             <ProductList products={products} loading={loading} error={error}/>
         </div>
     )

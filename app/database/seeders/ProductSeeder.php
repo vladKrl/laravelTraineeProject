@@ -4,13 +4,11 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\Location;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-
-use App\Models\Status;
 use App\Models\User;
 use App\Models\Product;
 use Illuminate\Support\Facades\Cache;
+use App\Enums\ProductStatus;
 
 class ProductSeeder extends Seeder
 {
@@ -29,8 +27,6 @@ class ProductSeeder extends Seeder
             ],
         );
 
-        $status = Status::firstOrCreate(['name' => 'active']);
-
         if (Location::count() === 0) {
             Location::factory()
                 ->count(3)
@@ -45,7 +41,7 @@ class ProductSeeder extends Seeder
             ->has(Category::factory()->count(rand(1,5)))
             ->create([
                 'user_id' => $user->id,
-                'status_id' => $status->id,
+                'status' => ProductStatus::ACTIVE,
             ])
             ->each(function ($product) {
                 $city = Location::whereNotNull('parent_id')->inRandomOrder()->first();

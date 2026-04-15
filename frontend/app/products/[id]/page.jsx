@@ -13,7 +13,7 @@ export default function ProductShow() {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
-    
+
     const [images, setImages] = useState([]);
 
     const router = useRouter();
@@ -34,7 +34,20 @@ export default function ProductShow() {
         } catch (error) {
             console.error(error);
         }
-    }
+    };
+
+    const handleArchive = async () => {
+        try {
+            await api.patch(`api/products/${product.id}/toggleArchive`);
+
+            setProduct(prev => ({
+                ...prev,
+                status: product.status === 'active' ? 'archived' : 'active',
+            }));
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -73,8 +86,13 @@ export default function ProductShow() {
 
     return (
         <div className="max-w-5xl mx-auto p-6">
-            <h1 className="text-3xl font-bold">{product.label}</h1>
-            <p className="text-2xl text-600 font-semibold my-4">{product.price} CURRENCY LATER</p>
+            <h1 className="text-4xl font-bold">{product.label}</h1>
+            <div className={"flex items-end gap-10"}>
+                <p className="text-2xl text-600 font-semibold mt-6">{product.price} BYN</p>
+                <h2 className={"flex font-semibold gap-1"}>
+                    Status:<p>{product.status}</p>
+                </h2>
+            </div>
             <div className={"grid p-10 grid-cols-2 gap-8 bg-gray-100 rounded-lg "}>
                 <div className={"flex flex-col"}>
                     <div className={"pb-[90%]"}>
@@ -103,7 +121,7 @@ export default function ProductShow() {
                             <div>
                                 <Link
                                     href={`/products/${product.id}/edit`}>
-                                    <p className={"text-center bg-purple-600 border-3 border-solid border-purple-700 py-3 px-2 font-bold text-gray-900"}>
+                                    <p className={"text-center bg-purple-600 border-3 border-solid border-purple-700 hover:bg-purple-700 py-3 px-2 font-bold text-gray-900"}>
                                         Edit product
                                     </p>
                                 </Link>
@@ -116,10 +134,18 @@ export default function ProductShow() {
                                     Delete product
                                 </Button>
                             </div>
+                            <div>
+                                <Button
+                                    onClick={handleArchive}
+                                    className={"bg-orange-500 border-3 border-red-800 hover:bg-orange-600 text-white px-2 py-3"}
+                                >
+                                    {product.status === 'active' ? 'Archive product' : 'Put from archive'}
+                                </Button>
+                            </div>
                         </div>
                     )}
-                <div className="flex gap-4 w-full md:w-auto">
-                    {user && Number(user.id) !== Number(product.user_id) && (
+                <div className={"flex gap-4 w-full md:w-auto"}>
+                    {product.status === 'active' && user && Number(user.id) !== Number(product.user_id) && (
                         <ContactWithSeller productId={product.id} />
                     )}
                 </div>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\ProductStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
@@ -36,7 +37,9 @@ class ProductController extends Controller implements HasMiddleware
         $categoryIds = $request->query('category');
 
         if (!$search && !$categoryIds) {
-            $products = Product::with(['categories', 'user', 'images', 'mainImage', 'region', 'city'])->paginate(12);
+            $products = Product::with(['categories', 'user', 'images', 'mainImage', 'region', 'city'])
+                ->where('status', ProductStatus::ACTIVE->value)
+                ->paginate(12);
             return ProductResource::collection($products);
         }
 
@@ -57,6 +60,7 @@ class ProductController extends Controller implements HasMiddleware
             ->query(function ($builder) {
                 $builder->with(['categories', 'images', 'mainImage']);
             })
+            ->where('status', ProductStatus::ACTIVE->value)
             ->paginate(12);
 
         return ProductResource::collection($products);
@@ -70,6 +74,7 @@ class ProductController extends Controller implements HasMiddleware
         unset($data['categories']);
 
         $data['user_id'] = Auth::id();
+        $data['status'] = ProductStatus::ACTIVE;
 
         $product = Product::create($data);
 
@@ -124,6 +129,36 @@ class ProductController extends Controller implements HasMiddleware
         $product->delete();
 
         return response()->noContent();
+    }
+
+    public function getArchived(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    {
+        $products = Product::with(['categories', 'user', 'images', 'mainImage', 'region', 'city'])
+            ->where('status', ProductStatus::ARCHIVED->value)
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->paginate(12);
+
+        return ProductResource::collection($products);
+    }
+
+    public function toggleArchive(Product $product): ProductResource
+    {
+        $this->authorize('update', $product);
+
+        $status = match($product->status) {
+            ProductStatus::ACTIVE   => ProductStatus::ARCHIVED,
+            ProductStatus::ARCHIVED => ProductStatus::ACTIVE,
+            default                 => $product->status,
+        };
+
+        if ($status !== $product->status) {
+            $product->update([
+                'status' => $status,
+            ]);
+        }
+
+        return new ProductResource($product->load(['categories', 'user', 'images', 'mainImage', 'region', 'city']));
     }
 
     public function uploadImages(UploadProductImagesRequest $request, Product $product): \Illuminate\Http\JsonResponse

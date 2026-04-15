@@ -17,7 +17,11 @@ Route::get('/user', function (Request $request) {
 
 Route::apiResource('categories', CategoryController::class)->only(['index']);
 
+Route::get('products/archived', [ProductController::class, 'getArchived']);
+
 Route::apiResource('products', ProductController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
+
+Route::patch('products/{product}/toggleArchive', [ProductController::class, 'toggleArchive']);
 
 Route::post('products/{product}/images', [ProductController::class, 'uploadImages']);
 

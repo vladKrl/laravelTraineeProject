@@ -21,7 +21,7 @@ class ProductResource extends JsonResource
             'picture_link' => $this->picture_link,
             'description' => $this->description,
             'price' => isset($this->price) ? (float)$this->price : null,
-            'status_id' => $this->status_id,
+            'status' => $this->status->value,
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),
             'images' => ProductImageResource::collection($this->whenLoaded('images')),
             'main_image' => new ProductImageResource($this->whenLoaded('mainImage')),

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\ProductStatus;
 use App\Models\Location;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\App;
@@ -25,7 +26,7 @@ class ProductFactory extends Factory
             'label' => $this->faker->sentence(3),
             'description' => $this->faker->optional()->paragraph(),
             'price' => $this->faker->randomFloat(2, 1, 100),
-            'status_id' => Status::factory(),
+            'status' => ProductStatus::ACTIVE,
             'created_at' => now(),
             'region_id' => Location::factory(),
             'city_id' => function (array $attributes) {

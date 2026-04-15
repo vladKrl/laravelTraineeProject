@@ -8,6 +8,8 @@ export default function ProductCard({ product }) {
 
     const mainImage = product.main_image || null;
 
+    const isArchived = product.status === 'archived';
+
     const mainImageUrl = mainImage ? mainImage.path : 'https://placehold.co/400x300';
 
     const categories = product.categories || [];
@@ -20,6 +22,15 @@ export default function ProductCard({ product }) {
                     alt={product.label}
                     className="w-full h-52 object-cover"
                 />
+
+                {isArchived && (
+                    <div className={"absolute inset-0 bg-gray-900/50 flex items-center justify-center z-10 backdrop-blur-[4px]"}>
+                        <span className={"bg-white/70 text-gray-900 px-5 py-2 rounded-full font-bold uppercase tracking-wider text-sm shadow-lg"}>
+                            Archived
+                        </span>
+                    </div>
+                )}
+
                 <div className={"absolute top-2 left-2 flex flex-wrap gap-1"}>
                     {categories.map((category) => (
                         <span
