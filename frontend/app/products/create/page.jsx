@@ -49,17 +49,23 @@ export default function ProductCreate() {
         setSelectedCategories(categoriesIds);
     }
 
-    const submitForm = async e => {
-        e.preventDefault();
+    const submitForm = async (e, status = 'active') => {
+        if (e) e.preventDefault();
+
+        if (!label.trim() && status === 'draft') {
+            setErrors({ label: ['A name required to save draft'] });
+            return;
+        }
 
         setSaving(true);
         setErrors({});
 
         const formData = new FormData();
 
-        formData.append('label', label);
+        formData.append('label', label.trim());
         formData.append('description', description);
         formData.append('price', price);
+        formData.append('status', status);
         formData.append('region_id', String(regionId ?? ''));
         formData.append('city_id', String(cityId ?? ''));
 
@@ -78,7 +84,7 @@ export default function ProductCreate() {
                 },
             });
 
-            router.push('/products');
+            router.push(status === 'draft' ? '/products/drafts' : '/products');
         } catch (error) {
             if (error.response?.status === 422) {
                 setErrors(error.response.data.errors);
@@ -101,9 +107,11 @@ export default function ProductCreate() {
                         value={label}
                         className={"w-full border rounded p-2"}
                         onChange={e => setLabel(e.target.value)}
-                        required
                         autoComplete={"off"}
                     />
+                    {errors.label && (
+                        <Errors errors={[errors.label[0]]} />
+                    )}
                 </div>
 
                 <div>
@@ -118,7 +126,6 @@ export default function ProductCreate() {
                             errors.description ? 'border-red-500' : 'border-gray-300'
                         }`}
                         onChange={e => setDescription(e.target.value)}
-                        required
                         disabled={saving}
                     />
                     <span className={` ${description.length < 10 ? 'text-red-500' : ''}`}>{description.length}</span><span>/255</span>
@@ -167,9 +174,11 @@ export default function ProductCreate() {
                         value={price}
                         className={"w-full border rounded p-2"}
                         onChange={e => setPrice(e.target.value)}
-                        required
                         autoComplete={"off"}
                     />
+                    {errors.price && (
+                        <Errors errors={[errors.price[0]]} />
+                    )}
                 </div>
 
                 <div className={"flex"}>
@@ -177,6 +186,15 @@ export default function ProductCreate() {
                         disabled={saving}
                     >
                         {saving ? 'Publishing...' : 'Publish your product'}
+                    </Button>
+
+                    <Button
+                        type="button"
+                        onClick={() => submitForm(null, 'draft')}
+                        disabled={saving}
+                        className={"ml-5 text-gray-950 bg-gray-500 hover:bg-gray-600"}
+                    >
+                        {saving ? 'Saving...' : 'Save as a draft'}
                     </Button>
                 </div>
             </form>

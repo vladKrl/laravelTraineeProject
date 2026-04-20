@@ -62,6 +62,7 @@ class Product extends Model implements Explored
             'id'            => $this->id,
             'label'         => $this->label,
             'description'   => $this->description,
+            'status'        => $this->status,
             'created_at'    => $this->created_at,
             'categories'    => $this->categories->map(function ($category) {
                 return [
@@ -83,6 +84,7 @@ class Product extends Model implements Explored
             'id'            => 'keyword',
             'label'         => 'text',
             'description'   => 'text',
+            'status'        => 'keyword',
             'created_at'    => 'date',
             'categories'    => [
                 'type'      => 'nested',

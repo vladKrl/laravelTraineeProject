@@ -57,7 +57,7 @@ export default function ProductCard({ product }) {
 
                 <div className={"flex justify-between items-center mt-auto"}>
                     <p className="text-2xl font-bold text-gray-900">
-                        {product.price} <span className="text-sm font-normal">CURRENCY</span>
+                        {product.price} <span className="text-sm font-normal">BYN</span>
                     </p>
 
                     <div className={"flex items-center gap-1"}>

@@ -101,7 +101,7 @@ export default function ProductShow() {
                     </div>
                     <div>
                         <h2>
-                            Location: {product.region.name}{product.city ? `, ${product.city.name}` : ''}
+                            Location: {product.region?.name}{product.city ? `, ${product.city?.name}` : ''}
                         </h2>
                     </div>
                 </div>
@@ -135,12 +135,14 @@ export default function ProductShow() {
                                 </Button>
                             </div>
                             <div>
-                                <Button
-                                    onClick={handleArchive}
-                                    className={"bg-orange-500 border-3 border-red-800 hover:bg-orange-600 text-white px-2 py-3"}
-                                >
-                                    {product.status === 'active' ? 'Archive product' : 'Put from archive'}
-                                </Button>
+                                {product.status !== 'draft' && (
+                                    <Button
+                                        onClick={handleArchive}
+                                        className={"bg-orange-500 border-3 border-red-800 hover:bg-orange-600 text-white px-2 py-3"}
+                                    >
+                                        {product.status === 'active' ? 'Archive product' : 'Put from archive'}
+                                    </Button>
+                                )}
                             </div>
                         </div>
                     )}

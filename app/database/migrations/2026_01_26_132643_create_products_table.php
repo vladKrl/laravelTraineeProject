@@ -17,9 +17,9 @@ return new class extends Migration
             $table->string('label');
             $table->string('picture_link')->nullable();
             $table->text('description')->nullable();
-            $table->decimal('price', 10, 2);
+            $table->decimal('price', 10, 2)->nullable();
             $table->string('status');
-            $table->foreignId('region_id')->constrained('locations');
+            $table->foreignId('region_id')->nullable()->constrained('locations');
             $table->foreignId('city_id')->nullable()->constrained('locations');
             $table->softDeletesDatetime();
             $table->timestamps();

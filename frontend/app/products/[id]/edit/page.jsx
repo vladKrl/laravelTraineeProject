@@ -90,8 +90,13 @@ export default function ProductEdit() {
         setSelectedCategories(categoriesIds);
     }
 
-    const submitForm = async e => {
-        e.preventDefault();
+    const submitForm = async (e, status = 'active') => {
+        if (e) e.preventDefault();
+
+        if (!label.trim() && status === 'draft') {
+            setErrors({ label: ['A name required to save draft'] });
+            return;
+        }
 
         setSaving(true);
         setErrors({});
@@ -104,6 +109,7 @@ export default function ProductEdit() {
                 categories: selectedCategories,
                 region_id: regionId,
                 city_id: cityId,
+                status,
             });
 
             router.push(`/products/${id}`);
@@ -170,9 +176,11 @@ export default function ProductEdit() {
                         value={label}
                         className={"w-full border rounded p-2"}
                         onChange={e => setLabel(e.target.value)}
-                        required
                         autoComplete={"off"}
                     />
+                    {errors.label && (
+                        <Errors errors={[errors.label[0]]} />
+                    )}
                 </div>
 
                 <div>
@@ -180,17 +188,16 @@ export default function ProductEdit() {
                     <textarea
                         name="description"
                         id="description"
-                        value={description}
+                        value={description || ''}
                         cols="30"
                         rows="10"
                         className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none ${
                             errors.description ? 'border-red-500' : 'border-gray-300'
                         }`}
                         onChange={e => setDescription(e.target.value)}
-                        required
                         disabled={saving}
                     />
-                    <span className={` ${description.length < 10 ? 'text-red-500' : ''}`}>{description.length}</span><span>/255</span>
+                    <span className={` ${!description || description?.length < 10 ? 'text-red-500' : ''}`}>{description?.length || 0}</span><span>/255</span>
                     {errors.description && (
                         <Errors errors={[errors.description[0]]} />
                     )}
@@ -226,12 +233,14 @@ export default function ProductEdit() {
                     <Input
                         id={"price"}
                         type={"number"}
-                        value={price}
+                        value={price || ''}
                         className={"w-full border rounded p-2"}
                         onChange={e => setPrice(e.target.value)}
-                        required
                         autoComplete={"off"}
                     />
+                    {errors.price && (
+                        <Errors errors={[errors.price[0]]} />
+                    )}
                 </div>
 
                 <div className={"bg-white p-6 rounded-xl shadow"}>
@@ -256,7 +265,16 @@ export default function ProductEdit() {
                     <Button
                         disabled={saving}
                     >
-                        {saving ? 'Applying...' : 'Edit'}
+                        {saving ? 'Applying...' : 'Edit & Publish'}
+                    </Button>
+
+                    <Button
+                        type="button"
+                        onClick={() => submitForm(null, 'draft')}
+                        disabled={saving}
+                        className={"ml-5 text-gray-950 bg-gray-500 hover:bg-gray-600"}
+                    >
+                        {saving ? 'Applying...' : 'Edit draft'}
                     </Button>
                 </div>
             </form>

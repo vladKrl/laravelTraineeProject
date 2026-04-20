@@ -16,6 +16,7 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use JeroenG\Explorer\Domain\Syntax\Terms;
 use JeroenG\Explorer\Domain\Syntax\Nested;
 use Illuminate\Support\Facades\Cache;
@@ -39,7 +40,7 @@ class ProductController extends Controller implements HasMiddleware
         if (!$search && !$categoryIds) {
             $products = Product::with(['categories', 'user', 'images', 'mainImage', 'region', 'city'])
                 ->where('status', ProductStatus::ACTIVE->value)
-                ->paginate(12);
+                ->cursorPaginate(12);
             return ProductResource::collection($products);
         }
 
@@ -61,7 +62,7 @@ class ProductController extends Controller implements HasMiddleware
                 $builder->with(['categories', 'images', 'mainImage']);
             })
             ->where('status', ProductStatus::ACTIVE->value)
-            ->paginate(12);
+            ->simplePaginate (12);
 
         return ProductResource::collection($products);
     }
@@ -74,7 +75,7 @@ class ProductController extends Controller implements HasMiddleware
         unset($data['categories']);
 
         $data['user_id'] = Auth::id();
-        $data['status'] = ProductStatus::ACTIVE;
+        $data['status'] ??= ProductStatus::ACTIVE;
 
         $product = Product::create($data);
 
@@ -159,6 +160,17 @@ class ProductController extends Controller implements HasMiddleware
         }
 
         return new ProductResource($product->load(['categories', 'user', 'images', 'mainImage', 'region', 'city']));
+    }
+
+    public function getDrafts(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    {
+        $products = Product::with(['categories', 'user', 'images', 'mainImage', 'region', 'city'])
+            ->where('status', ProductStatus::DRAFT->value)
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->paginate(12);
+
+        return ProductResource::collection($products);
     }
 
     public function uploadImages(UploadProductImagesRequest $request, Product $product): \Illuminate\Http\JsonResponse

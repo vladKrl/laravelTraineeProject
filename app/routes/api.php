@@ -19,6 +19,8 @@ Route::apiResource('categories', CategoryController::class)->only(['index']);
 
 Route::get('products/archived', [ProductController::class, 'getArchived']);
 
+Route::get('products/drafts', [ProductController::class, 'getDrafts']);
+
 Route::apiResource('products', ProductController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
 
 Route::patch('products/{product}/toggleArchive', [ProductController::class, 'toggleArchive']);

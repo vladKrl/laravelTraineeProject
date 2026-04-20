@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests\Product;
 
-use App\Models\Product;
+use App\Enums\ProductStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
 
 class UpdateProductRequest extends FormRequest
@@ -24,10 +25,16 @@ class UpdateProductRequest extends FormRequest
      */
     public function rules(): array
     {
+        $product = $this->route('product');
+
+        $isStrict = $this->input('status') === ProductStatus::ACTIVE->value ||
+            (!$this->has('status') && $product->status === ProductStatus::ACTIVE);
+
         return [
             'label'       => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|required|string|min:10|max:10000',
-            'price'       => 'sometimes|required|numeric|min:0',
+            'description' => $isStrict ? 'required|string|min:10|max:10000' : 'nullable|string',
+            'price'       => $isStrict ? 'required|numeric|min:0' : 'nullable|numeric',
+            'status'      => ['sometimes', 'required', Rule::enum(ProductStatus::class)],
             'categories'  => 'nullable|array',
             'categories.*'=> 'exists:categories,id',
             'images' => 'nullable|array|max:9',
@@ -36,7 +43,8 @@ class UpdateProductRequest extends FormRequest
                     ->types(['jpg', 'jpeg', 'png', 'webp'])
                     ->max(4096),
             ],
-            'region_id' => 'required|exists:locations,id,parent_id,NULL',
+            'region_id'   => $isStrict ? 'required|exists:locations,id,parent_id,NULL' :
+                'nullable|exists:locations,id,parent_id,NULL',
             'city_id' => 'nullable|exists:locations,id',
         ];
     }

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Models\Product;
+
 return [
     /*
      * There are different options for the connection. Since Explorer uses the Elasticsearch PHP SDK
@@ -33,7 +35,7 @@ return [
      * of the mapping possibilities can be found in the documentation of Explorer's repository.
      */
     'indexes' => [
-        \App\Models\Product::class,
+        Product::class,
     ],
 
     /**
