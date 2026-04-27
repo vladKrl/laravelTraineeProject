@@ -21,6 +21,9 @@ return new class extends Migration
             $table->string('status');
             $table->foreignId('region_id')->nullable()->constrained('locations');
             $table->foreignId('city_id')->nullable()->constrained('locations');
+            $table->foreignId('buyer_id')->nullable()->constrained('users');
+            $table->timestamp('sold_at')->nullable();
+            $table->string('archive_reason')->nullable();
             $table->softDeletesDatetime();
             $table->timestamps();
         });

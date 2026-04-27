@@ -17,11 +17,12 @@ class Product extends Model implements Explored
 {
     use HasFactory, SoftDeletes, Searchable;
 
-    protected $fillable = ['user_id', 'label', 'picture_link', 'description', 'price', 'status', 'region_id', 'city_id'];
+    protected $fillable = ['user_id', 'label', 'picture_link', 'description', 'price', 'status', 'region_id', 'city_id', 'buyer_id', 'sold_at', 'archive_reason'];
 
     protected function casts(): array
     {
         return [
+            'sold_at' => 'datetime',
             'status' => ProductStatus::class,
         ];
     }
@@ -29,6 +30,11 @@ class Product extends Model implements Explored
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function buyer(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'buyer_id');
     }
 
     public function categories(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
@@ -54,6 +60,11 @@ class Product extends Model implements Explored
     public function city(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Location::class, 'city_id');
+    }
+
+    public function conversations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Conversation::class);
     }
 
     public function toSearchableArray(): array

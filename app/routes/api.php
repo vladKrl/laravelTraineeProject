@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\MessageController;
+use App\Http\Controllers\Api\ReviewController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Resources\UserResource;
@@ -42,3 +43,11 @@ Route::post('products/{product}/favorites', [FavoriteController::class, 'toggle'
 Route::get('favorites', [FavoriteController::class, 'index']);
 
 Route::get('locations', [LocationController::class, 'index']);
+
+Route::post('users/{user}/reviews', [ReviewController::class, 'store']);
+
+Route::get('users/{user}/reviews', [ReviewController::class, 'index']);
+
+Route::delete('users/{user}/reviews/{review}/delete', [ReviewController::class, 'destroy'])->scopeBindings();
+
+Route::get('users/{user}/reviews/published', [ReviewController::class, 'published']);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Conversation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -23,6 +24,8 @@ class ProductResource extends JsonResource
             'price' => isset($this->price) ? (float)$this->price : null,
             'status' => $this->status->value,
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),
+            'conversations' => ConversationResource::collection($this->whenLoaded('conversations')),
+            'buyer' => new UserResource($this->whenLoaded('buyer')),
             'images' => ProductImageResource::collection($this->whenLoaded('images')),
             'main_image' => new ProductImageResource($this->whenLoaded('mainImage')),
             'created_at' => $this->created_at,

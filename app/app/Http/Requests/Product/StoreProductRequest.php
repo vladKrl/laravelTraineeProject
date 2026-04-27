@@ -42,6 +42,8 @@ class StoreProductRequest extends FormRequest
             ],
             'region_id' => $isDraft ? 'nullable|exists:locations,id,parent_id,NULL' : 'required|exists:locations,id,parent_id,NULL',
             'city_id' => 'nullable|exists:locations,id',
+            'archive_reason' => 'nullable|in:sold,deleted',
+            'buyer_id' => 'required_if:archive_reason,sold|exists:users,id',
         ];
     }
 }

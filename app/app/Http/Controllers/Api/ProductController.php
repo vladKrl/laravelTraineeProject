@@ -16,7 +16,6 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 use JeroenG\Explorer\Domain\Syntax\Terms;
 use JeroenG\Explorer\Domain\Syntax\Nested;
 use Illuminate\Support\Facades\Cache;
@@ -97,10 +96,16 @@ class ProductController extends Controller implements HasMiddleware
 
     public function show(Product $product): ProductResource
     {
+        $relations = ['categories', 'user', 'images', 'mainImage', 'region', 'city', 'buyer'];
+
+        if (auth('sanctum')->id() === $product->user_id) {
+            $relations[] = 'conversations.buyer';
+        }
+
         $cacheKey = "product-show-{$product->id}";
 
-        $productData = Cache::remember($cacheKey, now()->addHours(12), function () use ($product) {
-           return $product->load(['categories', 'user', 'images', 'mainImage', 'region', 'city']);
+        $productData = Cache::remember($cacheKey, now()->addHours(12), function () use ($product, $relations) {
+           return $product->load($relations);
         });
 
         return new ProductResource($productData);
@@ -143,21 +148,32 @@ class ProductController extends Controller implements HasMiddleware
         return ProductResource::collection($products);
     }
 
-    public function toggleArchive(Product $product): ProductResource
+    public function toggleArchive(Request $request, Product $product): ProductResource
     {
         $this->authorize('update', $product);
 
-        $status = match($product->status) {
-            ProductStatus::ACTIVE   => ProductStatus::ARCHIVED,
-            ProductStatus::ARCHIVED => ProductStatus::ACTIVE,
-            default                 => $product->status,
-        };
-
-        if ($status !== $product->status) {
+        if ($product->status->value === ProductStatus::ARCHIVED->value) {
             $product->update([
-                'status' => $status,
+                'status'            => ProductStatus::ACTIVE->value,
+                'buyer_id'          => null,
+                'archive_reason'    => null,
+                'sold_at'           => null,
             ]);
+
+            return new ProductResource($product->load(['categories', 'user', 'images', 'mainImage', 'region', 'city']));
         }
+
+        $data = $request->validate([
+            'archive_reason' => 'required|string|in:sold,sold_not_here,deleted',
+            'buyer_id'       => 'required_if:archive_reason,sold|nullable|exists:users,id',
+        ]);
+
+        $product->update([
+            'status'         => ProductStatus::ARCHIVED->value,
+            'archive_reason' => $data['archive_reason'],
+            'buyer_id'       => $data['buyer_id'] ?? null,
+            'sold_at'        => in_array($data['archive_reason'], ['sold', 'sold_not_here']) ? now() : null,
+        ]);
 
         return new ProductResource($product->load(['categories', 'user', 'images', 'mainImage', 'region', 'city']));
     }

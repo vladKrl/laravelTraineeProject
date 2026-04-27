@@ -8,15 +8,19 @@ import Link from "next/link";
 import {useAuth} from "../../hooks/auth";
 import ProductImagesShow from "../../components/products/ProductImagesShow";
 import ContactWithSeller from "../../components/products/ContactWithSeller";
+import ArchiveModal from "../../components/products/ArchiveModal";
 
 export default function ProductShow() {
     const { id } = useParams();
-    const [product, setProduct] = useState(null);
-    const [loading, setLoading] = useState(true);
 
+    const [product, setProduct] = useState(null);
     const [images, setImages] = useState([]);
 
+    const [loading, setLoading] = useState(true);
+
     const router = useRouter();
+
+    const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
 
     const { user } = useAuth();
 
@@ -36,17 +40,24 @@ export default function ProductShow() {
         }
     };
 
-    const handleArchive = async () => {
+    const handlePutFromArchive = async () => {
         try {
-            await api.patch(`api/products/${product.id}/toggleArchive`);
+            const response = await api.patch(`api/products/${product.id}/toggleArchive`);
 
             setProduct(prev => ({
                 ...prev,
-                status: product.status === 'active' ? 'archived' : 'active',
+                ...response.data.data,
             }));
         } catch (error) {
             console.error(error);
         }
+    };
+
+    const handlePutInArchive = (updatedProduct) => {
+        setProduct(prev => ({
+            ...prev,
+            ...updatedProduct,
+        }));
     };
 
     useEffect(() => {
@@ -137,13 +148,26 @@ export default function ProductShow() {
                             <div>
                                 {product.status !== 'draft' && (
                                     <Button
-                                        onClick={handleArchive}
+                                        onClick={() => {
+                                            if (product.status === 'active') {
+                                                setIsArchiveModalOpen(true);
+                                            } else {
+                                                handlePutFromArchive();
+                                            }
+                                        }}
                                         className={"bg-orange-500 border-3 border-red-800 hover:bg-orange-600 text-white px-2 py-3"}
                                     >
                                         {product.status === 'active' ? 'Archive product' : 'Put from archive'}
                                     </Button>
                                 )}
                             </div>
+
+                            <ArchiveModal
+                                isOpen={isArchiveModalOpen}
+                                onClose={() => setIsArchiveModalOpen(false)}
+                                product={product}
+                                onWasArchived={handlePutInArchive}
+                            />
                         </div>
                     )}
                 <div className={"flex gap-4 w-full md:w-auto"}>
@@ -153,5 +177,5 @@ export default function ProductShow() {
                 </div>
             </div>
         </div>
-    )
+    );
 }

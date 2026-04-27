@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\ProductStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Profile\UpdateProfileRequest;
 use App\Http\Requests\Profile\UploadAvatarRequest;
@@ -22,7 +23,16 @@ class ProfileController extends Controller implements HasMiddleware
 
     public function show(Profile $profile): ProfileResource
     {
-        $profile->load(['user.products', 'user.products.images', 'user.products.mainImage']);
+        $isOwner = auth('sanctum')->id() === $profile->user_id;
+
+        $profile->load([
+            'user.products' => function ($query) use ($isOwner) {
+                if (!$isOwner) {
+                    $query->where('status', ProductStatus::ACTIVE->value);
+                }},
+            'user.products.images',
+            'user.products.mainImage'
+        ]);
 
         return new ProfileResource($profile);
     }

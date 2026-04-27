@@ -4,7 +4,6 @@ import {useEffect, useState} from "react";
 import {usePathname, useRouter} from "next/navigation";
 
 export const useAuth = ({middleware} = {}) => {
-
     const router = useRouter();
     const pathname = usePathname();
     const [isLoading, setIsLoading] = useState(true);

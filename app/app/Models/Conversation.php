@@ -12,6 +12,8 @@ class Conversation extends Model
 {
     protected $fillable = ['product_id', 'buyer_id', 'seller_id'];
 
+    protected $touches = ['product'];
+
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);

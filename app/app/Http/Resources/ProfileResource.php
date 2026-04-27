@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -20,7 +21,8 @@ class ProfileResource extends JsonResource
             'bio' => $this->bio,
             'avatar' => $this->avatar,
             'created_at' => $this->created_at,
-            'user' => new UserResource($this->whenLoaded('user'))
+            'user' => new UserResource($this->whenLoaded('user')),
+            'can_review' => $request->user() ? $request->user()->can('create', [Review::class, $this->user]) : false,
         ];
     }
 }

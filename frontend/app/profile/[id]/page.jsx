@@ -2,10 +2,12 @@
 
 import {notFound, useParams, useRouter} from "next/navigation";
 import {useAuth} from "../../hooks/auth";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import api from "../../../utils/api";
 import Link from "next/link";
 import ProductCard from "../../components/products/ProductCard";
+import ReviewForm from "../../components/reviews/ReviewForm";
+import ReviewList from "../../components/reviews/ReviewList";
 
 export default function ProfileShow() {
     const { id } = useParams();
@@ -14,6 +16,9 @@ export default function ProfileShow() {
     const { user  } = useAuth();
 
     const [profile, setProfile] = useState(null);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -35,13 +40,13 @@ export default function ProfileShow() {
         }
 
         if (id) fetchProfile();
-    }, [id, router]);
+    }, [id, router, refreshTrigger]);
 
-    if (loading) {
+    if (loading || !profile) {
         return <div className={"p-10 text-center"}>Loading...</div>
     }
 
-    const isUserOwnProfile = user && Number(user.id) === Number(profile.user_id);
+        const isUserOwnProfile = user && Number(user.id) === Number(profile.user_id);
 
     return (
         <div className={"max-w-6xl mx-auto px-4 py-8"}>
@@ -82,7 +87,7 @@ export default function ProfileShow() {
                 )}
             </section>
 
-            <section>
+            <section className={"pb-4"}>
                 <h2 className={"text-2xl font-semibold mb-6"}>
                     {isUserOwnProfile ? "My products:" : `${profile.user.name}'s products:`}
                 </h2>
@@ -101,7 +106,7 @@ export default function ProfileShow() {
             </section>
 
             {isUserOwnProfile && (
-                <section className={"pt-10"}>
+                <section className={"py-10"}>
                     <div>
                         <Link
                             href={`/products/create`}
@@ -112,6 +117,34 @@ export default function ProfileShow() {
                     </div>
                 </section>
             )}
+
+            <div className={"grid grid-cols-3 gap-8"}>
+                <div className={"col-span-1"}>
+                    <ReviewList userId={id} key={refreshTrigger} onReviewDeleted={() => setRefreshTrigger(prev => prev + 1)} />
+                </div>
+
+                {showSuccessMessage && (
+                    <div className={"col-span-2 p-6 bg-green-50 border border-green-200 rounded-xl text-center"}>
+                        <h4 className="text-green-800 font-semibold">Thank for review!</h4>
+                        <p className={"text-green-800 text-sm"}>Your review has been published.</p>
+                    </div>
+                )}
+
+                {profile.can_review &&
+                    <div className={"col-span-2"}>
+                        {!isUserOwnProfile && (
+                            <ReviewForm
+                                userId={id}
+                                onSuccess={() => {
+                                    setRefreshTrigger(prev => prev + 1);
+                                    setShowSuccessMessage(true);
+                                    setTimeout(() => setShowSuccessMessage(false), 6000)
+                                }}
+                            />
+                        )}
+                    </div>
+                }
+            </div>
         </div>
     )
 }
