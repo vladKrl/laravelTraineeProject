@@ -27,22 +27,20 @@ class ReviewPolicy
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $user, User $receiver): bool
+    public function create(User $user, Product $product): bool
     {
-        if ($user->id === $receiver->id) {
+        if ($user->id === $product->user_id) {
             return false;
         }
 
-        $alreadyReviewed = Review::where('author_id', $user->id)
-            ->where('receiver_id', $receiver->id)
+        $alreadyReviewed = Review::where('product_id', $product->id)
             ->exists();
 
-        $hasBought = Product::where('user_id', $receiver->id)
-            ->where('buyer_id', $user->id)
-            ->whereNotNull('sold_at')
-            ->exists();
+        $isBuyer = $product->buyer_id === $user->id;
 
-        return !$alreadyReviewed && $hasBought;
+        $hasBought = isset($product->sold_at);
+
+        return !$alreadyReviewed && $hasBought && $isBuyer;
     }
 
     /**

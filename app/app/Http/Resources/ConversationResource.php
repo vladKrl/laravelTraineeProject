@@ -22,7 +22,7 @@ class ConversationResource extends JsonResource
             'interlocutor' => new UserResource($this->whenLoaded($interlocutor)),
             'last_message' => new MessageResource($this->whenLoaded('latestMessage')),
             'messages' => MessageResource::collection($this->whenLoaded('messages')),
-            'last_message_at' => $this->last_message_at?->diffForHumans(),
+            'last_message_at' => $this->last_message_at?->toIso8601String(),
             'updated_at' => $this->updated_at,
         ];
     }

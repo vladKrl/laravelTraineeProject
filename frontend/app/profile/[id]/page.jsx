@@ -1,13 +1,13 @@
 'use client'
 
-import {notFound, useParams, useRouter} from "next/navigation";
+import {useParams, useRouter} from "next/navigation";
 import {useAuth} from "../../hooks/auth";
 import React, {useEffect, useState} from "react";
 import api from "../../../utils/api";
 import Link from "next/link";
 import ProductCard from "../../components/products/ProductCard";
-import ReviewForm from "../../components/reviews/ReviewForm";
 import ReviewList from "../../components/reviews/ReviewList";
+import NotFound from "../../components/NotFound";
 
 export default function ProfileShow() {
     const { id } = useParams();
@@ -17,9 +17,9 @@ export default function ProfileShow() {
 
     const [profile, setProfile] = useState(null);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
-    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
     const [loading, setLoading] = useState(true);
+    const [notFound, setNotFound] = useState(false);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -27,26 +27,27 @@ export default function ProfileShow() {
                 const response = await api.get(`/api/profile/${id}`);
 
                 setProfile(response.data.data);
-                setLoading(false);
             } catch (error) {
-                console.error(error);
-
                 if (error.response?.status === 404) {
-                    setLoading(false);
-
-                    notFound(); //TODO: change with manually created not-found page and redirect with router
+                    setNotFound(true);
                 }
+            } finally {
+                setLoading(false);
             }
         }
 
         if (id) fetchProfile();
     }, [id, router, refreshTrigger]);
 
-    if (loading || !profile) {
+    if (loading) {
         return <div className={"p-10 text-center"}>Loading...</div>
     }
 
-        const isUserOwnProfile = user && Number(user.id) === Number(profile.user_id);
+    if (notFound) {
+        return <NotFound title={`Profile ${id}`} message={"This profile doesn't exist or deleted!"} backLink={"/"} />;
+    }
+
+    const isUserOwnProfile = user && Number(user.id) === Number(profile.user_id);
 
     return (
         <div className={"max-w-6xl mx-auto px-4 py-8"}>
@@ -122,28 +123,6 @@ export default function ProfileShow() {
                 <div className={"col-span-1"}>
                     <ReviewList userId={id} key={refreshTrigger} onReviewDeleted={() => setRefreshTrigger(prev => prev + 1)} />
                 </div>
-
-                {showSuccessMessage && (
-                    <div className={"col-span-2 p-6 bg-green-50 border border-green-200 rounded-xl text-center"}>
-                        <h4 className="text-green-800 font-semibold">Thank for review!</h4>
-                        <p className={"text-green-800 text-sm"}>Your review has been published.</p>
-                    </div>
-                )}
-
-                {profile.can_review &&
-                    <div className={"col-span-2"}>
-                        {!isUserOwnProfile && (
-                            <ReviewForm
-                                userId={id}
-                                onSuccess={() => {
-                                    setRefreshTrigger(prev => prev + 1);
-                                    setShowSuccessMessage(true);
-                                    setTimeout(() => setShowSuccessMessage(false), 6000)
-                                }}
-                            />
-                        )}
-                    </div>
-                }
             </div>
         </div>
     )

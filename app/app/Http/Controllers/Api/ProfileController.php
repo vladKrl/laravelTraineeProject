@@ -8,12 +8,19 @@ use App\Http\Requests\Profile\UpdateProfileRequest;
 use App\Http\Requests\Profile\UploadAvatarRequest;
 use App\Http\Resources\ProfileResource;
 use App\Models\Profile;
+use App\Services\Profile\ProfileAvatarService;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
-use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller implements HasMiddleware
 {
+    protected ProfileAvatarService $profileAvatarService;
+
+    public function __construct(ProfileAvatarService $profileAvatarService)
+    {
+        $this->profileAvatarService = $profileAvatarService;
+    }
+
     public static function middleware(): array
     {
         return [
@@ -31,7 +38,8 @@ class ProfileController extends Controller implements HasMiddleware
                     $query->where('status', ProductStatus::ACTIVE->value);
                 }},
             'user.products.images',
-            'user.products.mainImage'
+            'user.products.mainImage',
+            'user.products.categories'
         ]);
 
         return new ProfileResource($profile);
@@ -48,18 +56,12 @@ class ProfileController extends Controller implements HasMiddleware
 
     public function uploadAvatar(UploadAvatarRequest $request, Profile $profile): ProfileResource
     {
-        $avatarFile = $request->file('avatar');
+        $profile = $this->profileAvatarService
+            ->uploadAvatar(
+                $request->validated(),
+                $profile,
+            );
 
-        if ($profile->avatar) {
-            Storage::disk('public')->delete($profile->avatar);
-        }
-
-        $avatarPath = $avatarFile->store('avatars', 'public');
-
-        $profile->update([
-            'avatar' => $avatarPath,
-        ]);
-
-        return new ProfileResource($profile->load('user'));
+        return new ProfileResource($profile);
     }
 }

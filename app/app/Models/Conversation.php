@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Events\MessageSent;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,9 +9,13 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Conversation extends Model
 {
-    protected $fillable = ['product_id', 'buyer_id', 'seller_id'];
+    protected $fillable = ['product_id', 'buyer_id', 'seller_id', 'last_message_at'];
 
     protected $touches = ['product'];
+
+    protected $casts = [
+        'last_message_at' => 'datetime',
+    ];
 
     public function product(): BelongsTo
     {

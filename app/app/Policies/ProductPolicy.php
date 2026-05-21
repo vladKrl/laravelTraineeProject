@@ -2,9 +2,9 @@
 
 namespace App\Policies;
 
+use App\Enums\ProductStatus;
 use App\Models\Product;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class ProductPolicy
 {
@@ -19,9 +19,21 @@ class ProductPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Product $product): bool
+    public function view(?User $user, Product $product): bool
     {
-        return false;
+        if ($product->status === ProductStatus::ACTIVE) {
+            return true;
+        }
+
+        if (!$user) {
+            return false;
+        }
+
+        if ($user->id === $product->user_id) {
+            return true;
+        }
+
+        return $user->id === $product->buyer_id && $product->status !== ProductStatus::DRAFT;
     }
 
     /**

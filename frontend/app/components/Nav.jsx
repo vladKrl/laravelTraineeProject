@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link";
 import {useAuth} from "../hooks/auth";
 import {useEffect, useState} from "react";
@@ -40,7 +42,7 @@ export default function Nav() {
             <div>
                 <ul className={"flex space-x-4"}>
                     <Link href={"/"} className={"mr-2 ml-2"}>Home</Link>
-                    <Link href={"#"} className={"mr-2 ml-2"}>About</Link>
+                    {/*<Link href={"#"} className={"mr-2 ml-2"}>About</Link>*/}
                     <Link href={"/products"} className={"mr-2 ml-2"}>Product Cards</Link>
                     {user && (
                         <div>
@@ -48,12 +50,13 @@ export default function Nav() {
                             <Link href={"/favorites"} className={"mr-2 ml-2"}>Favorites</Link>
                             <Link href={"/products/archived"} className={"mr-2 ml-2"}>Archived</Link>
                             <Link href={"/products/drafts"} className={"mr-2 ml-2"}>Drafts</Link>
+                            <Link href={"/products/purchases"} className={"mr-2 ml-2"}>Purchases</Link>
                         </div>
                     )}
                 </ul>
             </div>
 
-            <div className={"flex gap-20 items-center"}>
+            <div className={"flex gap-5 items-center"}>
                 <div>
                     {isLoading ? (
                         <div className="text-gray-600">Loading...</div>

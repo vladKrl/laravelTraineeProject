@@ -3,13 +3,15 @@ import Footer from "./Footer";
 
 export default function Layouts({children}) {
     return (
-        <div className="bg-purple-400">
-            <div className="bg-purple-300 max-w-full px-8 mx-auto">
+        <div className={"flex flex-col min-h-screen bg-purple-400"}>
+            <header className="bg-purple-300 max-w-full px-8 mx-auto w-full">
                 <Nav />
-            </div>
-            <div className="mt-8">
+            </header>
+
+            <main className={"flex-grow mt-8"}>
                 {children}
-            </div>
+            </main>
+
             <Footer />
         </div>
     );

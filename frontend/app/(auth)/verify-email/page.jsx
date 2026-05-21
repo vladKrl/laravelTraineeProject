@@ -1,6 +1,6 @@
 "use client"
 
-import React, {useState} from "react";
+import React from "react";
 import "../../styles/global.css";
 import { useAuth } from "../../hooks/auth";
 import Button from "../../components/Button";

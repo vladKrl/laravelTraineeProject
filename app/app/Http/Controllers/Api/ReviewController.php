@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Review\StoreReviewRequest;
 use App\Http\Resources\ReviewResource;
+use App\Models\Product;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -24,27 +25,27 @@ class ReviewController extends Controller implements HasMiddleware
 
     public function index(User $user): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $reviews = $user->receivedReviews()->with('author')->latest()->paginate(10);
+        $reviews = $user->receivedReviews()->with(['author', 'product', 'product.mainImage'])->latest()->paginate(10);
 
         return ReviewResource::collection($reviews);
     }
 
-    public function store(StoreReviewRequest $request, User $user): ReviewResource
+    public function store(StoreReviewRequest $request, Product $product): ReviewResource
     {
-        $this->authorize('create', [Review::class, $user]);
+        $this->authorize('create', [Review::class, $product]);
 
         $review = Review::create([
             'rating'        => $request->rating,
             'body'          => $request->body,
             'author_id'     => auth()->id(),
-            'receiver_id'   => $user->id,
-            'product_id'    => $request->product_id,
+            'receiver_id'   => $product->user_id,
+            'product_id'    => $product->id,
         ]);
 
-        return new ReviewResource($review->load('author'));
+        return new ReviewResource($review->load(['author', 'product']));
     }
 
-    public function destroy(User $user, Review $review): \Illuminate\Http\Response
+    public function destroy(Product $product, Review $review): \Illuminate\Http\Response
     {
         $this->authorize('delete', $review);
 
@@ -55,7 +56,7 @@ class ReviewController extends Controller implements HasMiddleware
 
     public function published(User $user): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $reviews = $user->reviews()->with('receiver')->latest()->paginate(10);
+        $reviews = $user->reviews()->with(['receiver', 'product'])->latest()->paginate(10);
 
         return ReviewResource::collection($reviews);
     }

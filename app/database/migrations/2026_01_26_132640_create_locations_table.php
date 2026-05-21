@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('locations', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('parent_id')->nullable();
+            $table->integer('parent_id')->nullable()->constrained('locations')->nullOnDelete();
             $table->decimal('lat', 10, 8);
             $table->decimal('lng', 11, 8);
             $table->timestamps();

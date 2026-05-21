@@ -1,12 +1,13 @@
 'use client'
 
-import {useMemo, useState} from 'react';
+import {useEffect, useState} from 'react';
 import Errors from "../Errors";
 import Label from "../Label";
 
 export default function ProductImagesUpload({ existingImages = [], selectedImages = [], onImagesSelected, onDeleteExisting }) {
     const [errors, setErrors] = useState({});
 
+    const [localImages, setLocalImages] = useState([]);
 
     const serverImages = existingImages.map(image => ({
         id: image.id,
@@ -14,13 +15,21 @@ export default function ProductImagesUpload({ existingImages = [], selectedImage
         isServer: true
     }))
 
-    const localImages = useMemo(() => {
-        return selectedImages.map((image) => ({
-            id: `${image.name}-${image.size}`,
-            url: URL.createObjectURL(image),
-            file: image,
-            isServer: false
+    useEffect(() => {
+        const localImagesWithURLs = selectedImages.map((image) => ({
+                id: `${image.name}-${image.size}`,
+                url: URL.createObjectURL(image),
+                file: image,
+                isServer: false
         }));
+
+        setLocalImages(localImagesWithURLs);
+
+        return () => {
+            localImagesWithURLs.forEach(image => {
+                URL.revokeObjectURL(image.url);
+            });
+        };
     }, [selectedImages]);
 
     const allImages = [...serverImages, ...localImages];

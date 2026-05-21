@@ -2,15 +2,27 @@
 
 import {useState} from "react";
 import api from "../../../utils/api";
+import {useAuth} from "../../hooks/auth";
+import {useRouter} from "next/navigation";
 
 export default function LikeButton({ productId, initialIsFavorite = false}) {
     const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
     const [loading, setLoading] = useState(false);
 
+    const { user } = useAuth();
+    const router = useRouter();
+
     const toggle = async (e) => {
         e.preventDefault();
 
+        if (!user) {
+            router.push('/login');
+
+            return;
+        }
+
         setLoading(true);
+
         try {
             const response = await api.post(`/api/products/${productId}/favorites`);
 

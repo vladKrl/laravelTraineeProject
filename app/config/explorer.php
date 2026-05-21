@@ -11,12 +11,12 @@ return [
      * https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/configuration.html
      */
     'connection' => [
-        'host' => env('SCOUT_ELASTIC_HOST', 'http://localhost'),
-        'port' => '9200',
-        'scheme' => 'http',
+        'host' => env('SCOUT_ELASTIC_HOST', 'elastic'),
+        'port' => env('SCOUT_ELASTIC_PORT', '9200'),
+        'scheme' => env('SCOUT_ELASTIC_SCHEME', 'http'),
         'auth'  => [
-            'username' => env('SCOUT_ELASTIC_USERNAME', 'user'),
-            'password' => env('SCOUT_ELASTIC_PASSWORD', 'password')
+            'username' => env('SCOUT_ELASTIC_USERNAME'),
+            'password' => env('SCOUT_ELASTIC_PASSWORD')
         ],
     ],
 

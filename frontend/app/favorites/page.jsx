@@ -37,7 +37,15 @@ export default function FavoritesPage() {
     return (
         <div className={"p-6"}>
             <h1 className="text-2xl font-bold mb-4">You liked these Products!</h1>
-            <ProductList products={products} loading={loading} error={error}/>
+            <ProductList
+                products={products}
+                loading={loading}
+                error={error}
+                title={"Favorite products"}
+                message={"You haven't any Favorite products!"}
+                backLink={'/products'}
+                backText={"Go to Products"}
+            />
         </div>
     )
 }

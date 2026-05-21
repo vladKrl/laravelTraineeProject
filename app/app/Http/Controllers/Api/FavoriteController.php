@@ -21,6 +21,9 @@ class FavoriteController extends Controller implements HasMiddleware
     {
         $favorites = auth()->user()->favoriteProducts()
             ->with(['images', 'categories', 'mainImage', 'user'])
+            ->withExists(['favorites as is_favorite' => function ($q) {
+                $q->where('user_id', auth()->id());
+            }])
             ->latest('favorites.created_at')
             ->get();
 
@@ -31,7 +34,9 @@ class FavoriteController extends Controller implements HasMiddleware
     {
         $user = auth()->user();
 
-        $user->favoriteProducts()->toggle($product->id);
+        $toggled = $user->favoriteProducts()->toggle($product->id);
+
+        $product->is_favorite = count($toggled['attached']) > 0;
 
         $product->load(['images', 'categories', 'mainImage', 'user']);
 

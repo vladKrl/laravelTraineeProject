@@ -36,7 +36,13 @@ export default function ReviewList ({ userId, type = 'received', onReviewDeleted
     }, [userId]);
 
 
-    const handleDelete = async (reviewId) => {
+    const handleDelete = async (reviewId, productId) => {
+        if (!productId) {
+            console.error('Product ID is missing!');
+
+            return;
+        }
+
         const isConfirmed = window.confirm('Please confirm you want to delete your review (cannot be undone)!');
 
         if (!isConfirmed) {
@@ -44,7 +50,7 @@ export default function ReviewList ({ userId, type = 'received', onReviewDeleted
         }
 
         try {
-            await api.delete(`api/users/${user.id}/reviews/${reviewId}/delete`);
+            await api.delete(`api/products/${productId}/reviews/${reviewId}`);
 
             onReviewDeleted();
         } catch (error) {
@@ -91,16 +97,22 @@ export default function ReviewList ({ userId, type = 'received', onReviewDeleted
                                 <span className="text-sm text-gray-500">{review.created_at}</span>
                             </div>
 
-                            {review.body && (
-                                <p className={"text-gray-700"}>
-                                    {review.body}
-                                </p>
-                            )}
+                            <div className={"flex justify-between"}>
+                                {review.body && (
+                                    <p className={"text-gray-700"}>
+                                        {review.body}
+                                    </p>
+                                )}
 
-                            {Number(review.author.id) === Number(user.id) &&
+                                <Link href={`/products/${review.product?.id}`}>
+                                    <img src={review.product?.main_image.path} alt="Main image" className={"max-w-12 min-w-12 min-h-12 cursor-pointer hover:scale-120 rounded-md object-cover"}/>
+                                </Link>
+                            </div>
+
+                            {user && Number(review.author.id) === Number(user.id) &&
                                 <div>
                                     <Button
-                                        onClick={() => handleDelete(review.id)}
+                                        onClick={() => handleDelete(review.id, review.product?.id)}
                                         className={"bg-red-500 border-3 border-red-800 hover:bg-red-600 text-white px-2 py-3"}
                                     >
                                         Delete review

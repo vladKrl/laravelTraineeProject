@@ -37,7 +37,15 @@ export default function ArchivedPage() {
     return (
         <div className={"p-6"}>
             <h1 className="text-2xl font-bold mb-4">You archived these Products!</h1>
-            <ProductList products={products} loading={loading} error={error}/>
+            <ProductList
+                products={products}
+                loading={loading}
+                error={error}
+                title={"Archived products"}
+                message={"You don't have any Archived products!"}
+                backLink={user ? `/profile/${user?.id}` : '/products'}
+                backText={"Go to your Products"}
+            />
         </div>
     )
 }

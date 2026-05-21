@@ -6,7 +6,6 @@ use App\Enums\ProductStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\File;
 
 class UpdateProductRequest extends FormRequest
 {
@@ -37,12 +36,6 @@ class UpdateProductRequest extends FormRequest
             'status'      => ['sometimes', 'required', Rule::enum(ProductStatus::class)],
             'categories'  => 'nullable|array',
             'categories.*'=> 'exists:categories,id',
-            'images' => 'nullable|array|max:9',
-            'images.*' => [
-                File::image()
-                    ->types(['jpg', 'jpeg', 'png', 'webp'])
-                    ->max(4096),
-            ],
             'region_id'   => $isStrict ? 'required|exists:locations,id,parent_id,NULL' :
                 'nullable|exists:locations,id,parent_id,NULL',
             'city_id' => 'nullable|exists:locations,id',

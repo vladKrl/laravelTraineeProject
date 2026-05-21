@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileResource extends JsonResource
 {
@@ -19,10 +19,9 @@ class ProfileResource extends JsonResource
             'id' => $this->id,
             'user_id' => $this->user_id,
             'bio' => $this->bio,
-            'avatar' => $this->avatar,
+            'avatar' => $this->avatar ? Storage::disk('public')->url($this->avatar) : null,
             'created_at' => $this->created_at,
             'user' => new UserResource($this->whenLoaded('user')),
-            'can_review' => $request->user() ? $request->user()->can('create', [Review::class, $this->user]) : false,
         ];
     }
 }

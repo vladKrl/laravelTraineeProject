@@ -3,8 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Profile extends Model
 {
@@ -18,18 +16,5 @@ class Profile extends Model
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
-    }
-
-    protected function avatar(): Attribute
-    {
-        return Attribute::make(
-            get: function ($value) {
-                if (!$value) {
-                    return null;
-                }
-
-                return Storage::disk('public')->url($value);
-            }
-        );
     }
 }

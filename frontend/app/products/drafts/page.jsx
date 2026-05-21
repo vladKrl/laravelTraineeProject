@@ -38,7 +38,15 @@ export default function DraftsPage() {
     return (
         <div className={"p-6"}>
             <h1 className="text-2xl font-bold mb-4">Your Drafts!</h1>
-            <ProductList products={products} loading={loading} error={error}/>
+            <ProductList
+                products={products}
+                loading={loading}
+                error={error}
+                title={"Your Drafts"}
+                message={"You don't have any Drafts!"}
+                backLink={'/products/create'}
+                backText={"Add Product"}
+            />
         </div>
     )
 }

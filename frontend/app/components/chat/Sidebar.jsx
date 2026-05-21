@@ -41,15 +41,9 @@ export default function Sidebar({ currentUser }) {
 
         const fetchConversation = async () => {
             try {
-                const conversationsRes = await api.get('api/conversations');
+                const response = await api.get('api/conversations');
 
-                setConversations(conversationsRes.data.data);
-
-                const channel = echo.private(`App.Models.User.${currentUserId}`)
-                    .listen('.MessageSent', (e) => {
-                        updateSidebar(e.message);
-                    });
-                return () => echo.leave(`App.Models.User.${currentUserId}`)
+                setConversations(response.data.data);
             } catch (error) {
                 console.error(error);
 
@@ -60,6 +54,13 @@ export default function Sidebar({ currentUser }) {
         }
 
         if (currentUser) fetchConversation();
+
+        const channel = echo.private(`App.Models.User.${currentUserId}`)
+            .listen('.MessageSent', (e) => {
+                updateSidebar(e.message);
+            });
+
+        return () => echo.leave(`App.Models.User.${currentUserId}`);
     }, [currentUser, echo]);
 
     const updateSidebar = (newMessage) => {
@@ -148,11 +149,11 @@ export default function Sidebar({ currentUser }) {
                                             <div className="flex items-center gap-3">
                                                 <img
                                                     alt=""
-                                                    src={conv.product.main_image?.path || 'https://placehold.co/50'}
+                                                    src={conv.product?.main_image?.path || 'https://placehold.co/50'}
                                                     className={"w-12 h-12 rounded object-cover"}
                                                 />
                                                 <div className={"flex-grow min-w-0"}>
-                                                    <h5 className={"text-xs font-semibold truncate"}>{conv.product.label}</h5>
+                                                    <h5 className={"text-xs font-semibold truncate"}>{conv.product?.label || 'Product was deleted'}</h5>
                                                     <p className="text-xs text-gray-500 truncate mt-1">
                                                         <span className={"text-gray-800"}>{conv.last_message?.user_id === currentUser?.id ? 'You: ' : ''}</span>
                                                         {conv.last_message?.body || 'No messages'}

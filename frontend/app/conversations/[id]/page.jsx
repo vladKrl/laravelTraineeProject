@@ -46,9 +46,9 @@ export default function ConversationShow() {
 
     return (
         <div className={"flex flex-col h-full"}>
-            <div className="p-4 border-b bg-gray-50 flex justify-between items-center">
+            <div className="p-5 bg-gray-50 flex justify-between items-center">
                 <div>
-                    Product: <strong>{conversation.product?.label}</strong>
+                    Product: <strong>{conversation.product?.label || 'has been deleted'}</strong>
                 </div>
                 <div className="text-sm text-gray-500">
                     Seller: {conversation.interlocutor?.name}
@@ -56,9 +56,11 @@ export default function ConversationShow() {
             </div>
 
             <Chat
+                key={id}
                 chatId={id}
                 initialMessages={conversation.messages || []}
                 currentUser={user}
+                productDeleted={!conversation.product}
             />
         </div>
     );

@@ -6,7 +6,7 @@ import Button from "../Button";
 import Errors from "../Errors";
 import Label from "../Label";
 
-export default function ReviewForm ({ userId, onSuccess }) {
+export default function ReviewForm ({ productId, onSuccess }) {
     const [rating, setRating] = useState(0);
     const [body, setBody] = useState('');
 
@@ -21,7 +21,7 @@ export default function ReviewForm ({ userId, onSuccess }) {
         setErrors({});
 
         try {
-            const response = await api.post(`api/users/${userId}/reviews`, {
+            const response = await api.post(`api/products/${productId}/reviews`, {
                 rating,
                 body
             });
@@ -32,6 +32,14 @@ export default function ReviewForm ({ userId, onSuccess }) {
             if (onSuccess) onSuccess(response.data.data);
         } catch (error) {
             console.error(error);
+
+            if (error.response?.status === 422) {
+                setErrors(error.response.data.errors);
+            }
+
+            if (error.response?.status === 403) {
+                setErrors({form: ['You cannot make review for this user.']});
+            }
         } finally {
             setLoading(false);
         }
@@ -41,8 +49,12 @@ export default function ReviewForm ({ userId, onSuccess }) {
         <form onSubmit={handleSubmit} className={"p-6 bg-white border border-gray-200 rounded-xl shadow-sm"}>
             <h3 className="text-lg font-semibold mb-4 text-gray-900">Create Review</h3>
 
+            {errors.form && (
+                <Errors errors={[errors.form[0]]} />
+            )}
+
             <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Your rating</label>
+                <Label className="block text-sm font-medium text-gray-700 mb-2">Your rating</Label>
                 <div className="flex gap-1">
                     {[...Array(5)].map((_, i) => {
                         const starValue = i + 1;

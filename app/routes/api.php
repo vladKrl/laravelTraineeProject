@@ -20,6 +20,8 @@ Route::apiResource('categories', CategoryController::class)->only(['index']);
 
 Route::get('products/archived', [ProductController::class, 'getArchived']);
 
+Route::get('products/purchases', [ProductController::class, 'getPurchases']);
+
 Route::get('products/drafts', [ProductController::class, 'getDrafts']);
 
 Route::apiResource('products', ProductController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
@@ -44,10 +46,10 @@ Route::get('favorites', [FavoriteController::class, 'index']);
 
 Route::get('locations', [LocationController::class, 'index']);
 
-Route::post('users/{user}/reviews', [ReviewController::class, 'store']);
+Route::post('products/{product}/reviews', [ReviewController::class, 'store']);
 
 Route::get('users/{user}/reviews', [ReviewController::class, 'index']);
 
-Route::delete('users/{user}/reviews/{review}/delete', [ReviewController::class, 'destroy'])->scopeBindings();
+Route::delete('products/{product}/reviews/{review}', [ReviewController::class, 'destroy'])->scopeBindings();
 
 Route::get('users/{user}/reviews/published', [ReviewController::class, 'published']);

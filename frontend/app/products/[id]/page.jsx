@@ -1,7 +1,7 @@
 'use client'
 
-import {notFound, useParams, useRouter} from "next/navigation";
-import {useEffect, useState} from "react";
+import {useParams, useRouter} from "next/navigation";
+import React, {useEffect, useState} from "react";
 import api from "../../../utils/api";
 import Button from "../../components/Button";
 import Link from "next/link";
@@ -9,14 +9,18 @@ import {useAuth} from "../../hooks/auth";
 import ProductImagesShow from "../../components/products/ProductImagesShow";
 import ContactWithSeller from "../../components/products/ContactWithSeller";
 import ArchiveModal from "../../components/products/ArchiveModal";
+import ReviewForm from "../../components/reviews/ReviewForm";
+import NotFound from "../../components/NotFound";
 
 export default function ProductShow() {
     const { id } = useParams();
 
     const [product, setProduct] = useState(null);
     const [images, setImages] = useState([]);
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
     const [loading, setLoading] = useState(true);
+    const [notFound, setNotFound] = useState(false);
 
     const router = useRouter();
 
@@ -74,13 +78,11 @@ export default function ProductShow() {
 
                 setLoading(false);
             } catch (error) {
-                console.error(error);
-
                 if (error.response?.status === 404) {
-                    setLoading(false);
-
-                    notFound(); //TODO: change with manually created not-found page and redirect with router
+                    setNotFound(true);
                 }
+            } finally {
+                setLoading(false);
             }
         }
 
@@ -91,8 +93,8 @@ export default function ProductShow() {
         return <div className={"p-10 text-center"}>Loading...</div>
     }
 
-    if (!product) {
-        return <div className={"p-10 text-center"}>Such product is not found...</div>
+    if (notFound) {
+        return <NotFound title={`Product ${id}`} message={"This product doesn't exist or deleted!"} backLink={"/products"} backText={"Search other products!"}/>;
     }
 
     return (
@@ -176,6 +178,27 @@ export default function ProductShow() {
                     )}
                 </div>
             </div>
+
+            {showSuccessMessage && (
+                <div className={"col-span-2 p-6 bg-green-50 border border-green-200 rounded-xl text-center"}>
+                    <h4 className="text-green-800 font-semibold">Thank for review!</h4>
+                    <p className={"text-green-800 text-sm"}>Your review has been published.</p>
+                </div>
+            )}
+
+            {product.can_review && !showSuccessMessage &&
+                <div className={"col-span-2"}>
+                    <ReviewForm
+                        productId={product.id}
+                        onSuccess={() => {
+                            setProduct(prev => ({ ...prev, can_review: false }));
+                            setShowSuccessMessage(true);
+                            setTimeout(() => setShowSuccessMessage(false), 6000)
+                        }}
+                    />
+                </div>
+            }
+
         </div>
     );
 }

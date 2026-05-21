@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Events\MessageSent;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ConversationResource;
-use App\Http\Resources\MessageResource;
 use App\Models\Conversation;
 use App\Models\Product;
+use App\Services\Conversation\ConversationService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -16,6 +15,13 @@ use Illuminate\Routing\Controllers\Middleware;
 class ConversationController extends Controller implements HasMiddleware
 {
     use AuthorizesRequests;
+
+    protected ConversationService $conversationService;
+
+    public function __construct(ConversationService $conversationService)
+    {
+        $this->conversationService = $conversationService;
+    }
 
     public static function middleware(): array
     {
@@ -39,7 +45,7 @@ class ConversationController extends Controller implements HasMiddleware
 
     public function store(Request $request): ConversationResource
     {
-        $request->validate([
+        $data = $request->validate([
             'product_id' => 'required|exists:products,id',
             'body' => 'required|string|max:2000',
         ]);
@@ -48,22 +54,12 @@ class ConversationController extends Controller implements HasMiddleware
 
         $this->authorize('create', [Conversation::class, $product]);
 
-        $buyerId = auth()->id();
-
-        $conversation = Conversation::firstOrCreate([
-            'product_id' => $product->id,
-            'buyer_id' => $buyerId,
-            'seller_id' => $product->user_id,
-        ]);
-
-        $message = $conversation->messages()->create([
-            'user_id' => $buyerId,
-            'body' => $request->body,
-        ]);
-
-        $conversation->update(['last_message_at' => now()]);
-
-        $conversation->load(['product.images', 'buyer', 'seller', 'latestMessage']);
+        $conversation = $this->conversationService
+            ->sendFirstMessage(
+                $data,
+                $product,
+                $request->user('sanctum'),
+            );
 
         return new ConversationResource($conversation);
     }

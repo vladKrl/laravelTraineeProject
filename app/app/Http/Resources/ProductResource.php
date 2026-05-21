@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Conversation;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -29,8 +29,9 @@ class ProductResource extends JsonResource
             'images' => ProductImageResource::collection($this->whenLoaded('images')),
             'main_image' => new ProductImageResource($this->whenLoaded('mainImage')),
             'created_at' => $this->created_at,
-            'is_favorite' => auth()->user()
-                ? auth()->user()->favoriteProducts()->where('product_id', $this->id)->exists()
+            'is_favorite' => $this->is_favorite,
+            'can_review' => auth('sanctum')->check()
+                ? auth('sanctum')->user()->can('create', [Review::class, $this->resource])
                 : false,
             'region' => new LocationResource($this->whenLoaded('region')),
             'city' => new LocationResource($this->whenLoaded('city')),

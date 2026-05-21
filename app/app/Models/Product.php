@@ -67,13 +67,23 @@ class Product extends Model implements Explored
         return $this->hasMany(Conversation::class);
     }
 
+    public function reviews(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Review::class);
+    }
+
+    public function favorites(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'favorites');
+    }
+
     public function toSearchableArray(): array
     {
         return [
             'id'            => $this->id,
             'label'         => $this->label,
             'description'   => $this->description,
-            'status'        => $this->status,
+            'status'        => $this->status->value,
             'created_at'    => $this->created_at,
             'categories'    => $this->categories->map(function ($category) {
                 return [

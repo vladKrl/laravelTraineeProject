@@ -3,7 +3,7 @@ import {useAuth} from "../../hooks/auth";
 import LikeButton from "../favorites/LikeButton";
 import ContactWithSeller from "./ContactWithSeller";
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, actions }) {
     const { user } = useAuth();
 
     const mainImage = product.main_image || null;
@@ -66,10 +66,16 @@ export default function ProductCard({ product }) {
                     </div>
                 </div>
 
-                {Number(product.user_id) !== Number(user?.id) && (
+                {Number(product.user_id) !== Number(user?.id) && product.status !== 'archived' && (
                     <div className={"flex gap-3"}>
                         <LikeButton productId={product.id} initialIsFavorite={product.is_favorite} />
                         <ContactWithSeller productId={product.id} />
+                    </div>
+                )}
+
+                {actions && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                        {actions}
                     </div>
                 )}
             </div>
