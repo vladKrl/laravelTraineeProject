@@ -18,6 +18,8 @@ export default function Sidebar({ currentUser }) {
     let currentUserId;
 
     useEffect(() => {
+        if (!echo || !currentUser?.id) return;
+
         const channel = echo.join('chat.online')
             .here((users) => {
                 setOnlineUsers(users);
@@ -32,7 +34,7 @@ export default function Sidebar({ currentUser }) {
         return () => {
             echo.leave('chat.online');
         };
-    }, []);
+    }, [currentUser?.id]);
 
     useEffect(() => {
         if (!currentUser?.id || !echo) return;
@@ -130,7 +132,11 @@ export default function Sidebar({ currentUser }) {
                                         <span className={"absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"}></span>}
                                 </div>
                                 <div className={"flex-grow text-left"}>
-                                    <h4 className={"font-bold text-sm"}>{group.interlocutor.name}</h4>
+                                        <h4 className={"font-bold text-sm"}>
+                                            <Link className={"hover:text-blue-800"} href={`/profile/${group.interlocutor.id}`}>
+                                                {group.interlocutor.name}
+                                            </Link>
+                                        </h4>
                                     <p className={"text-xs text-gray-500"}>{group.chats.length} {group.chats.length === 1 ? 'conversation' : 'conversations'}</p>
                                 </div>
                                 <span className={`transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}>

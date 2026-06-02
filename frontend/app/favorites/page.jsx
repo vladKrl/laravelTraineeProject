@@ -34,6 +34,17 @@ export default function FavoritesPage() {
         fetchFavoriteProducts();
     }, []);
 
+    useEffect(() => {
+        const handleFavoriteRemoved = (event) => {
+            const removedId = event.detail.productId;
+            setProducts(prev => prev.filter(p => p.id !== removedId));
+        };
+
+        window.addEventListener('favorite:removed', handleFavoriteRemoved);
+
+        return () => window.removeEventListener('favorite:removed', handleFavoriteRemoved);
+    }, []);
+
     return (
         <div className={"p-6"}>
             <h1 className="text-2xl font-bold mb-4">You liked these Products!</h1>
@@ -45,6 +56,11 @@ export default function FavoritesPage() {
                 message={"You haven't any Favorite products!"}
                 backLink={'/products'}
                 backText={"Go to Products"}
+                renderActions={(product) => {
+                    if (!product.is_favorite) {
+                        setProducts(prev => prev.filter(p => p.id !== product.id));
+                    }
+                }}
             />
         </div>
     )

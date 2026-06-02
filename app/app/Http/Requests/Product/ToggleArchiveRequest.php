@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Product;
 
+use App\Enums\ProductStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -22,8 +23,16 @@ class ToggleArchiveRequest extends FormRequest
      */
     public function rules(): array
     {
+        $product = $this->route('product');
+
+        $isArchiving = $product && $product->status !== ProductStatus::ARCHIVED;
+
         return [
-            'archive_reason' => 'sometimes|required|string|in:sold,sold_not_here,deleted',
+            'archive_reason' => [
+                $isArchiving ? 'required' : 'sometimes',
+                'string',
+                'in:sold,sold_not_here,deleted'
+            ],
             'buyer_id'       => 'required_if:archive_reason,sold|nullable|exists:users,id',
         ];
     }

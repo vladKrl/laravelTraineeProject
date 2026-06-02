@@ -8,14 +8,14 @@ export default function ConversationsLayout({ children }) {
     const { user } = useAuth();
 
     return (
-        <div className={"flex h-[calc(100vh-64px)] bg-white"}>
+        <div className={"flex h-[calc(100vh-120px)] bg-white"}>
             <aside className={"w-[25%] border-r overflow-y-auto"}>
                 <Sidebar
                     currentUser={user}
                 />
             </aside>
 
-            <main className={"flex-grow-1"}>
+            <main className={"flex flex-1 flex-col h-full min-h-0 overflow-hidden"}>
                 {children}
             </main>
         </div>

@@ -26,8 +26,6 @@ services:
       dockerfile: php.Dockerfile
     ports:
       - "${REVERB_PORT:-8080}:8080"
-    env_file:
-      - postgre.env
     environment:
       - LARAVEL_SAIL=1
     depends_on:
@@ -64,6 +62,17 @@ services:
       - postgre.env
     ports:
       - "${POSTGRESQL_HOST_PORT}:5432"
+    networks:
+      - single-net
+
+  db_test:
+    volumes:
+      - pgtestdata-volume:/var/lib/postgresql
+    env_file:
+      - postgretest.env
+    image: postgres
+    ports:
+      - "${POSTGRESQL_TEST_HOST_PORT}:5432"
     networks:
       - single-net
 
@@ -125,6 +134,7 @@ services:
 
 volumes:
   pgdata-volume:
+  pgtestdata-volume:
   node_modules:
   laravelelastic:
     driver: local

@@ -7,17 +7,24 @@ use App\Models\ProductImage;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class ProductImageService
 {
     public function uploadImages(array $data, Product $product): array
     {
+        $savedImagesCount = $product->images()->count();
+        $newImagesCount = count($data);
+
+        if (($savedImagesCount + $newImagesCount) > 9) {
+            throw ValidationException::withMessages([
+                'images' => 'The max number of images is 9!',
+            ]);
+        }
+
         $uploadedImages = [];
 
         if (!empty($data)) {
-
-            $savedImagesCount = $product->images()->count();
-
             foreach ($data as $index => $image) {
                 $path = $image->store("products/{$product->id}", 'public');
 

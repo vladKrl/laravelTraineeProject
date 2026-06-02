@@ -118,15 +118,31 @@ export default function ProductShow() {
                         </h2>
                     </div>
                 </div>
+
                 <div className={"w-full"}>
                     <ProductImagesShow
                         images={images}
                     />
                 </div>
             </div>
+            <div className={"flex mt-3 flex-wrap gap-1"}>
+                <p className={"font-bold"}>Categories: </p>
+                {product.categories.map((category) => (
+                    <span
+                        key={category.id}
+                        className={"bg-black/50 text-white text-[10px] px-2 py-1 rounded backdrop-blur-sm"}
+                    >
+                            {category.label}
+                        </span>
+                ))}
+            </div>
             <div className="mt-6 border-t pt-4">
                 <div>
-                    <p>Seller: <strong>{product.user?.name}</strong></p>
+                    <p>Seller:
+                        <Link className={"hover:text-blue-800"} href={`/profile/${product.user?.id}`}>
+                            <strong> {product.user?.name}</strong>
+                        </Link>
+                    </p>
                     <p>Published: {new Date(product.created_at).toLocaleDateString()}</p>
                 </div>
                     {user && Number(user.id) === Number(product.user_id) && (

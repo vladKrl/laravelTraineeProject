@@ -12,6 +12,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Services\Product\ProductArchiveService;
 use App\Services\Product\ProductImageService;
+use App\Services\Product\ProductQueryService;
 use App\Services\Product\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -25,12 +26,19 @@ class ProductController extends Controller implements HasMiddleware
     protected ProductService $productService;
     protected ProductImageService $productImageService;
     protected ProductArchiveService $productArchiveService;
+    protected ProductQueryService $productQueryService;
 
-    public function __construct(ProductService $productService, ProductImageService $productImageService, ProductArchiveService $productArchiveService)
+    public function __construct(
+        ProductService $productService,
+        ProductImageService $productImageService,
+        ProductArchiveService $productArchiveService,
+        ProductQueryService $productQueryService,
+    )
     {
         $this->productService = $productService;
         $this->productImageService = $productImageService;
         $this->productArchiveService = $productArchiveService;
+        $this->productQueryService = $productQueryService;
     }
 
     public static function middleware(): array
@@ -42,7 +50,7 @@ class ProductController extends Controller implements HasMiddleware
 
     public function index(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $products = $this->productService
+        $products = $this->productQueryService
             ->indexProducts(
                 $request->all(),
                 $request->user('sanctum'),
@@ -66,7 +74,7 @@ class ProductController extends Controller implements HasMiddleware
     {
         $this->authorize('view', $product);
 
-        $product = $this->productService
+        $product = $this->productQueryService
             ->showProduct(
                 $product,
                 auth('sanctum')->user(),
@@ -99,7 +107,7 @@ class ProductController extends Controller implements HasMiddleware
 
     public function getPurchases(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $products = $this->productService
+        $products = $this->productQueryService
             ->getUserPurchases(
                 $request->user('sanctum')
             );
@@ -109,7 +117,7 @@ class ProductController extends Controller implements HasMiddleware
 
     public function getDrafts(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $products = $this->productService
+        $products = $this->productQueryService
             ->getUserDrafts(
                 $request->user('sanctum')
             );
@@ -119,7 +127,7 @@ class ProductController extends Controller implements HasMiddleware
 
     public function getArchived(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $products = $this->productArchiveService
+        $products = $this->productQueryService
             ->getUserArchived(
                 $request->user('sanctum'),
             );
@@ -148,16 +156,6 @@ class ProductController extends Controller implements HasMiddleware
 
         $images = $data['images'];
         unset($data['images']);
-
-        $savedImagesCount = $product->images()->count();
-        $newImagesCount = count($images);
-
-        if (($savedImagesCount + $newImagesCount) > 9) {
-            return response()->json([
-                'message' => 'The max number of images is 9!',
-                'errors' => ['images' => ['9 images allowed maximum.']]
-            ], 422);
-        }
 
         $productImages = $this->productImageService->uploadImages($images, $product);
 

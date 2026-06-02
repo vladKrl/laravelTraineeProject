@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ProductStatus;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class ProductTest extends TestCase
@@ -16,8 +16,17 @@ class ProductTest extends TestCase
      */
     public function test_get_products(): void
     {
-        $response = $this->get('/');
+        Product::factory()->count(3)->create(['status' => ProductStatus::ACTIVE]);
+        Product::factory()->create(['status' => ProductStatus::DRAFT]);
 
-        $response->assertStatus(200);
+        $response = $this->get('/api/products');
+
+        $response->assertStatus(200)
+            ->assertJsonCount(3, 'data', )
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => ['id', 'label', 'status']
+                ]
+            ]);
     }
 }

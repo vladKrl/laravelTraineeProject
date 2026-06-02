@@ -15,7 +15,7 @@ export default function ProductCard({ product, actions }) {
     const categories = product.categories || [];
 
     return (
-        <div className={"max-w-sm w-full bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all flex flex-col h-full"}>
+        <div className={"max-w-sm w-full bg-blue-200 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all flex flex-col h-full"}>
             <div className="relative">
                 <img
                     src={mainImageUrl}
@@ -30,20 +30,9 @@ export default function ProductCard({ product, actions }) {
                         </span>
                     </div>
                 )}
-
-                <div className={"absolute top-2 left-2 flex flex-wrap gap-1"}>
-                    {categories.map((category) => (
-                        <span
-                            key={category.id}
-                            className={"bg-black/50 text-white text-[10px] px-2 py-1 rounded backdrop-blur-sm"}
-                        >
-                            {category.label}
-                        </span>
-                    ))}
-                </div>
             </div>
 
-            <div className={"p-5 space-y-4 flex flex-col flex-grow"}>
+            <div className={"relative p-5 space-y-4 flex flex-col flex-grow"}>
                 <div>
                     <Link href={`/products/${product.id}`}>
                         <h3 className={"text-xl font-bold text-gray-900 hover:text-indigo-600 transition-colors line-clamp-1"}>
@@ -55,15 +44,26 @@ export default function ProductCard({ product, actions }) {
                     </p>
                 </div>
 
+                <div className={"flex flex-wrap gap-1"}>
+                    {categories.slice(0,3).map((category) => (
+                        <span
+                            key={category.id}
+                            className={"bg-black/50 text-white text-[10px] px-2 py-1 rounded backdrop-blur-sm"}
+                        >
+                            {category.label}
+                        </span>
+                    ))}
+                    {categories.length > 3 && (
+                        <span className={"bg-gray-700 text-white text-[10px] px-2 py-1 rounded backdrop-blur-sm font-bold ml-4"}>
+                            +{categories.length - 3} more.
+                        </span>
+                    )}
+                </div>
+
                 <div className={"flex justify-between items-center mt-auto"}>
                     <p className="text-2xl font-bold text-gray-900">
                         {product.price} <span className="text-sm font-normal">BYN</span>
                     </p>
-
-                    <div className={"flex items-center gap-1"}>
-                        <div className="text-yellow-400">★★★★</div>
-                        <div className="text-gray-300">★</div>
-                    </div>
                 </div>
 
                 {Number(product.user_id) !== Number(user?.id) && product.status !== 'archived' && (

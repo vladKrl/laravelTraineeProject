@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 
 class FavoriteController extends Controller implements HasMiddleware
 {
+    use AuthorizesRequests;
+
     public static function middleware(): array
     {
         return [
@@ -32,6 +35,12 @@ class FavoriteController extends Controller implements HasMiddleware
 
     public function toggle(Product $product): ProductResource
     {
+        $this->authorize('view', $product);
+
+        if ($product->user_id === auth()->id()) {
+            abort(403);
+        }
+
         $user = auth()->user();
 
         $toggled = $user->favoriteProducts()->toggle($product->id);

@@ -29,7 +29,7 @@ class ProductResource extends JsonResource
             'images' => ProductImageResource::collection($this->whenLoaded('images')),
             'main_image' => new ProductImageResource($this->whenLoaded('mainImage')),
             'created_at' => $this->created_at,
-            'is_favorite' => $this->is_favorite,
+            'is_favorite' => (bool) ($this->is_favorite ?? false),
             'can_review' => auth('sanctum')->check()
                 ? auth('sanctum')->user()->can('create', [Review::class, $this->resource])
                 : false,

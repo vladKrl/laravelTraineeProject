@@ -3,3 +3,5 @@ app/.env
 .dockerignore
 .idea
 postgre.env
+postgretest.env
+.env.testing

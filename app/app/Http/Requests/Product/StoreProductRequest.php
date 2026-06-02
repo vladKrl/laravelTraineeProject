@@ -31,7 +31,10 @@ class StoreProductRequest extends FormRequest
             'label'       => 'required|string|max:255',
             'description' => $isDraft ? 'nullable|string' : 'required|string|min:10|max:10000',
             'price'       => $isDraft ? 'nullable|numeric' : 'required|numeric|min:0',
-            'status' => ['required', Rule::enum(ProductStatus::class)],
+            'status' => ['required', Rule::in([
+                ProductStatus::ACTIVE->value,
+                ProductStatus::DRAFT->value
+            ])],
             'categories'  => 'nullable|array',
             'categories.*'=> 'exists:categories,id',
             'images' => 'nullable|array|max:9',

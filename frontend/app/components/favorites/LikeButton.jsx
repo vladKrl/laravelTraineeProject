@@ -1,11 +1,11 @@
 'use client'
 
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import api from "../../../utils/api";
 import {useAuth} from "../../hooks/auth";
 import {useRouter} from "next/navigation";
 
-export default function LikeButton({ productId, initialIsFavorite = false}) {
+export default function LikeButton({ productId, initialIsFavorite = false }) {
     const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
     const [loading, setLoading] = useState(false);
 
@@ -26,7 +26,15 @@ export default function LikeButton({ productId, initialIsFavorite = false}) {
         try {
             const response = await api.post(`/api/products/${productId}/favorites`);
 
-            setIsFavorite(response.data.data.is_favorite);
+            const favoriteStatus = response.data.data.is_favorite;
+
+            setIsFavorite(favoriteStatus);
+
+            if (!favoriteStatus) {
+                window.dispatchEvent(new CustomEvent('favorite:removed', {
+                    detail: { productId }
+                }));
+            }
         } catch (error) {
             console.error(error);
         } finally {
@@ -39,7 +47,7 @@ export default function LikeButton({ productId, initialIsFavorite = false}) {
             onClick={toggle}
             disabled={loading}
             type="button"
-            className={"gap-5 w-full bg-white text-gray-900 transition text-lg flex items-center px-4 py-2 gap-2 rounded w-max border border-gray-500/30"}
+            className={"gap-5 w-full bg-blue-300 text-gray-900 transition text-lg flex items-center px-4 py-2 gap-2 rounded-lg w-max border border-blue-900"}
         >
             <span
                 className={`text-xl scale-200 ${isFavorite ? "text-red-500" : "text-gray-500"} ${loading && "animate-pulse"}`}

@@ -33,7 +33,7 @@ export default function Register() {
     }
 
     return (
-        <div className={"w-1/4 mx-auto bg-white shadow p-1 rounded"}>
+        <div className={"w-1/4 mx-auto bg-blue-200 shadow p-1 rounded"}>
 
             <Errors errors={errors} />
 

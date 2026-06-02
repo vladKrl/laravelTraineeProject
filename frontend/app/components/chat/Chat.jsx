@@ -9,8 +9,10 @@ export default function Chat({ chatId, initialMessages, currentUser, productDele
     const [messages, setMessages] = useState(initialMessages || []);
     const [newMessage, setNewMessage] = useState('');
     const [isInterlocutorTyping, setIsInterlocutorTyping] = useState(false);
+
     const typingTimeoutRef = useRef(null);
     const scrollRef = useRef(null);
+    const firstScrollRef = useRef(true);
 
     useEffect(() => {
         const channel = echo.private(`chat.${chatId}`)
@@ -55,7 +57,14 @@ export default function Chat({ chatId, initialMessages, currentUser, productDele
     };
 
     useEffect(() => {
-        scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (scrollRef.current){
+            scrollRef.current.scrollTo({
+                top: scrollRef.current.scrollHeight,
+                behavior: firstScrollRef.current ? "auto" : "smooth",
+            })
+        }
+
+        firstScrollRef.current = false;
     }, [messages]);
 
     const sendMessage = async (e) => {
@@ -85,8 +94,8 @@ export default function Chat({ chatId, initialMessages, currentUser, productDele
     };
 
     return (
-        <div className={"flex flex-col h-[80%] border"}>
-            <div className={"flex-grow overflow-y-auto p-4 space-y-4"}>
+        <div className={"flex flex-col flex-grow min-h-0 border"}>
+            <div ref={scrollRef} className={"flex-grow overflow-y-auto p-4 space-y-4"}>
                 {messages.map((msg) => {
                     const isMine = Number(msg.user_id) === Number(currentUser.id);
 
@@ -96,7 +105,6 @@ export default function Chat({ chatId, initialMessages, currentUser, productDele
                         </div>
                     )
                 })}
-                <div ref={scrollRef} />
                 {isInterlocutorTyping && <div className="text-xs text-gray-500 italic">Typing...</div>}
             </div>
 

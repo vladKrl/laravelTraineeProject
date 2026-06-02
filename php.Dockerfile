@@ -15,7 +15,8 @@ RUN apk add --no-cache \
 # Install xdebug
 RUN apk add --no-cache $PHPIZE_DEPS linux-headers \
     && pecl install xdebug \
-    && docker-php-ext-enable xdebug \
+    && pecl install redis \
+    && docker-php-ext-enable xdebug redis \
     && apk del $PHPIZE_DEPS linux-headers
 
 RUN docker-php-ext-install bcmath \
