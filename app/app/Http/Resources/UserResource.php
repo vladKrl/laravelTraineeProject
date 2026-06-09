@@ -14,11 +14,13 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $isOwner = $request->user()?->id === $this->id;
+
         return [
             'id' => $this->id,
-            'email' => $this->email,
+            'email' => $this->when($isOwner, $this->email),
+            'email_verified_at' => $this->when($isOwner, $this->email_verified_at),
             'name' => $this->name,
-            'email_verified_at' => $this->email_verified_at,
             'products' => ProductResource::collection($this->whenLoaded('products')),
             'profile' => new ProfileResource($this->whenLoaded('profile')),
             'is_online' => $this->isOnline(),

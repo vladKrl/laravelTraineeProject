@@ -20,8 +20,10 @@ class ProductService
     public function createProduct(array $data, User $user): Product
     {
         return DB::transaction(function () use ($data, $user) {
+            $hasCategories = array_key_exists('categories', $data);
             $categories = $data['categories'] ?? [];
 
+            $hasImages = array_key_exists('images', $data);
             $images = $data['images'] ?? [];
 
             unset($data['images'], $data['categories']);
@@ -31,15 +33,17 @@ class ProductService
 
             $product = Product::create($data);
 
-            if (!empty($categories)) {
+            if ($hasCategories) {
                 $product->categories()->sync($categories);
+
+                $product->touch();
             }
 
-            if (!empty($images)) {
+            if ($hasImages) {
                 $this->productImageService->uploadImages($images, $product);
             }
 
-            return $product;
+            return $product->load(['categories', 'mainImage']);
         });
     }
 
@@ -60,7 +64,7 @@ class ProductService
 
             $this->clearCache($product->id);
 
-            return $product;
+            return $product->load(['categories', 'user', 'images', 'mainImage', 'region', 'city']);
         });
     }
 

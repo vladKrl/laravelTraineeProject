@@ -22,16 +22,18 @@ class ConversationService
                 'seller_id' => $product->user_id,
             ]);
 
-            if ($conversation->wasRecentlyCreated) {
-                $conversation->messages()->create([
-                    'user_id'   => $user->id,
-                    'body'      => $data['body'],
-                ]);
+            if (!$conversation->wasRecentlyCreated) {
+                return $conversation->load(['product', 'buyer', 'seller', 'latestMessage']);
             }
+
+            $conversation->messages()->create([
+                'user_id'   => $user->id,
+                'body'      => $data['body'],
+            ]);
 
             $conversation->update(['last_message_at' => now()]);
 
-            return $conversation;
+            return $conversation->load(['product', 'buyer', 'seller', 'latestMessage']);
         });
     }
 

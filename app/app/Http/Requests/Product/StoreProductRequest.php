@@ -43,10 +43,14 @@ class StoreProductRequest extends FormRequest
                     ->types(['jpg', 'jpeg', 'png', 'webp'])
                     ->max(4096),
             ],
-            'region_id' => $isDraft ? 'nullable|exists:locations,id,parent_id,NULL' : 'required|exists:locations,id,parent_id,NULL',
-            'city_id' => 'nullable|exists:locations,id',
-            'archive_reason' => 'nullable|in:sold,deleted',
-            'buyer_id' => 'required_if:archive_reason,sold|exists:users,id',
+            'region_id' => [
+                $isDraft ? 'nullable' : 'required',
+                Rule::exists('locations', 'id')->whereNull('parent_id'),
+            ],
+            'city_id' => [
+                'nullable',
+                Rule::exists('locations', 'id')->where('parent_id', $this->input('region_id')),
+            ],
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\ProductStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
@@ -23,7 +24,11 @@ class FavoriteController extends Controller implements HasMiddleware
     public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $favorites = auth()->user()->favoriteProducts()
-            ->with(['images', 'categories', 'mainImage', 'user'])
+            ->whereIn('status', [
+                ProductStatus::ACTIVE->value,
+                ProductStatus::ARCHIVED->value,
+            ])
+            ->with(['categories', 'mainImage'])
             ->withExists(['favorites as is_favorite' => function ($q) {
                 $q->where('user_id', auth()->id());
             }])
@@ -47,7 +52,7 @@ class FavoriteController extends Controller implements HasMiddleware
 
         $product->is_favorite = count($toggled['attached']) > 0;
 
-        $product->load(['images', 'categories', 'mainImage', 'user']);
+        $product->load(['categories', 'mainImage']);
 
         return new ProductResource($product);
     }

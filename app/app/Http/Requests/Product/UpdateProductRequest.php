@@ -33,12 +33,22 @@ class UpdateProductRequest extends FormRequest
             'label'       => 'sometimes|required|string|max:255',
             'description' => $isStrict ? 'required|string|min:10|max:10000' : 'nullable|string',
             'price'       => $isStrict ? 'required|numeric|min:0' : 'nullable|numeric',
-            'status'      => ['sometimes', 'required', Rule::enum(ProductStatus::class)],
+            'status'      => ['sometimes',
+                'required',
+                Rule::in([
+                    ProductStatus::ACTIVE->value,
+                    ProductStatus::DRAFT->value,
+                ])],
             'categories'  => 'nullable|array',
             'categories.*'=> 'exists:categories,id',
-            'region_id'   => $isStrict ? 'required|exists:locations,id,parent_id,NULL' :
-                'nullable|exists:locations,id,parent_id,NULL',
-            'city_id' => 'nullable|exists:locations,id',
+            'region_id' => [
+                $isStrict ? 'required' : 'nullable',
+                Rule::exists('locations', 'id')->whereNull('parent_id'),
+            ],
+            'city_id' => [
+                'nullable',
+                Rule::exists('locations', 'id')->where('parent_id', $this->input('region_id')),
+            ],
         ];
     }
 }

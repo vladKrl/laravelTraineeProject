@@ -8,14 +8,17 @@ import {useAuth} from "../../hooks/auth";
 
 export default function ConversationShow() {
     const { id } = useParams();
-    const { user } = useAuth({middleware: 'auth'});
+    const { user, isLoading : authLoading } = useAuth({middleware: 'auth'});
 
     const [loading, setLoading] = useState(true);
     const [conversation, setConversation] = useState([]);
 
+
     const router = useRouter();
 
     useEffect(() => {
+        if (!id || !user) return;
+
         const fetchConversation = async () =>{
             try {
                 const messagesRes = await api.get(`api/conversations/${id}`);
@@ -32,17 +35,18 @@ export default function ConversationShow() {
             }
         }
 
-        if (id) fetchConversation();
-    }, [id, router]);
+        fetchConversation();
+    }, [id, router, user]);
 
-
-    if (loading) {
+    if (loading || authLoading || !user) {
         return <div className={"p-10 text-center"}>Loading...</div>
     }
 
     if (!conversation) {
         return <div className="p-10 text-center">Conversation not found</div>
     }
+
+    const productUnavailable = !conversation.product || conversation.product.status !== 'active';
 
     return (
         <div className={"flex flex-col h-full"}>
@@ -60,7 +64,7 @@ export default function ConversationShow() {
                 chatId={id}
                 initialMessages={conversation.messages || []}
                 currentUser={user}
-                productDeleted={!conversation.product}
+                isConversationClosed={productUnavailable}
             />
         </div>
     );

@@ -2,6 +2,7 @@ services:
   php:
     volumes:
       - ./app:/var/www/html
+      - ./entrypoint.sh:/var/www/html/entrypoint.sh
     build:
       dockerfile: php.Dockerfile
     expose:
@@ -12,6 +13,7 @@ services:
       - db
     networks:
       - single-net
+    entrypoint: /var/www/html/entrypoint.sh
     env_file:
       - postgre.env
     environment:
@@ -36,6 +38,19 @@ services:
       - single-net
     command: php artisan reverb:start --host=0.0.0.0 --port=${REVERB_PORT:-8080} --debug
 
+  queue:
+    build:
+      dockerfile: php.Dockerfile
+    volumes:
+      - ./app:/var/www/html
+    depends_on:
+      - php
+      - db
+      - redis
+    networks:
+      - single-net
+    command: php artisan queue:work --tries=3
+
   frontend:
     image: node:20-alpine
     volumes:
@@ -48,7 +63,7 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL_SERVER=http://nginx:80
       - NEXT_PUBLIC_API_URL_BROWSER=http://localhost:80
-      - NEXT_PUBLIC_REVERB_APP_KEY=tkbelbua5ir1k6br3eir
+      - NEXT_PUBLIC_REVERB_APP_KEY=${REVERB_APP_KEY:-secret}
       - NEXT_PUBLIC_REVERB_HOST=localhost
       - NEXT_PUBLIC_REVERB_PORT=8080
       - NEXT_PUBLIC_REVERB_SCHEME=http

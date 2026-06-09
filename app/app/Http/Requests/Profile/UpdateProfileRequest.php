@@ -23,7 +23,6 @@ class UpdateProfileRequest extends FormRequest
     {
         return [
             'bio'   => 'nullable|string|max:255',
-            'avatar'   => 'nullable|string|max:255',
         ];
     }
 }

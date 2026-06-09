@@ -1,7 +1,6 @@
-Laravel + Next.js Online classifieds platform.
+# Laravel + Next.js classifieds platform
 
-This project is my trainee project for Innowise.
-
-Technology tack: Laravel Framework 12.55.1, Next.js v16.2.1, Tailwindcss 4.2.2, Elasticsearch 9.3.2
-
-Deploy via Docker platform
+## Frontend Tech Stack
+* **Framework**: Next.js v16.2.1 (App Router)
+* **Styles**: TailwindCSS 4.2.2
+* **Real-time**: Laravel Echo & Pusher-js

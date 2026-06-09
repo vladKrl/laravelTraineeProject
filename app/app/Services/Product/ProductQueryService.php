@@ -17,7 +17,7 @@ class ProductQueryService
         $categoryIds = $data['category'] ?? null;
 
         if (!$search && !$categoryIds) {
-            return Product::with(['categories', 'user', 'images', 'mainImage', 'region', 'city'])
+            return Product::with(['categories', 'mainImage'])
                 ->where('status', ProductStatus::ACTIVE->value)
                 ->when($user, function ($query) use ($user) {
                     $query->withExists(['favorites as is_favorite' => function ($q) use ($user) {
@@ -42,7 +42,7 @@ class ProductQueryService
 
         return $scout
             ->query(function ($builder) use ($user) {
-                $builder->with(['categories', 'images', 'mainImage'])
+                $builder->with(['categories', 'mainImage'])
                     ->when($user, function ($query) use ($user) {
                         $query->withExists(['favorites as is_favorite' => function ($q) use ($user) {
                             $q->where('user_id', $user->id);
@@ -92,7 +92,7 @@ class ProductQueryService
 
     public function getUserDrafts(User $user): \Illuminate\Pagination\LengthAwarePaginator
     {
-        return Product::with(['categories', 'user', 'images', 'mainImage', 'region', 'city'])
+        return Product::with(['categories', 'mainImage'])
             ->where('status', ProductStatus::DRAFT->value)
             ->where('user_id', $user->id)
             ->latest()
@@ -101,7 +101,7 @@ class ProductQueryService
 
     public function getUserArchived(User $user): \Illuminate\Pagination\LengthAwarePaginator
     {
-        return Product::with(['categories', 'user', 'images', 'mainImage', 'region', 'city'])
+        return Product::with(['categories', 'mainImage'])
             ->where('status', ProductStatus::ARCHIVED->value)
             ->where('user_id', $user->id)
             ->latest()

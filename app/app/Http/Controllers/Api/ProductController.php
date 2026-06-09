@@ -7,7 +7,9 @@ use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\ToggleArchiveRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
 use App\Http\Requests\Product\UploadProductImagesRequest;
+use App\Http\Resources\ProductImageResource;
 use App\Http\Resources\ProductResource;
+use App\Http\Resources\ProductDetailResource;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Services\Product\ProductArchiveService;
@@ -67,10 +69,10 @@ class ProductController extends Controller implements HasMiddleware
                 $request->user(),
             );
 
-        return new ProductResource($product->load(['categories', 'images']));
+        return new ProductResource($product);
     }
 
-    public function show(Product $product): ProductResource
+    public function show(Product $product): ProductDetailResource
     {
         $this->authorize('view', $product);
 
@@ -80,10 +82,10 @@ class ProductController extends Controller implements HasMiddleware
                 auth('sanctum')->user(),
             );
 
-        return new ProductResource($product);
+        return new ProductDetailResource($product);
     }
 
-    public function update(UpdateProductRequest $request, Product $product): ProductResource
+    public function update(UpdateProductRequest $request, Product $product): ProductDetailResource
     {
         $this->authorize('update', $product);
 
@@ -93,7 +95,7 @@ class ProductController extends Controller implements HasMiddleware
                 $product,
             );
 
-        return new ProductResource($product->load(['categories', 'images']));
+        return new ProductDetailResource($product);
     }
 
     public function destroy(Product $product): \Illuminate\Http\Response
@@ -112,7 +114,7 @@ class ProductController extends Controller implements HasMiddleware
                 $request->user('sanctum')
             );
 
-        return ProductResource::collection($products);
+        return ProductDetailResource::collection($products);
     }
 
     public function getDrafts(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
@@ -135,7 +137,7 @@ class ProductController extends Controller implements HasMiddleware
         return ProductResource::collection($products);
     }
 
-    public function toggleArchive(ToggleArchiveRequest $request, Product $product): ProductResource
+    public function toggleArchive(ToggleArchiveRequest $request, Product $product): ProductDetailResource
     {
         $this->authorize('update', $product);
 
@@ -145,10 +147,10 @@ class ProductController extends Controller implements HasMiddleware
                 $product
             );
 
-        return new ProductResource($product);
+        return new ProductDetailResource($product);
     }
 
-    public function uploadImages(UploadProductImagesRequest $request, Product $product): \Illuminate\Http\JsonResponse
+    public function uploadImages(UploadProductImagesRequest $request, Product $product): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $this->authorize('update', $product);
 
@@ -159,9 +161,8 @@ class ProductController extends Controller implements HasMiddleware
 
         $productImages = $this->productImageService->uploadImages($images, $product);
 
-        return response()->json([
-            'data' => $productImages,
-        ]);
+
+        return ProductImageResource::collection($productImages);
     }
 
     public function deleteImage(Product $product, ProductImage $image): \Illuminate\Http\Response

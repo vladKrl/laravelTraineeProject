@@ -5,7 +5,7 @@ import echo from "../../../utils/echo";
 import api from "../../../utils/api";
 import Button from "../Button";
 
-export default function Chat({ chatId, initialMessages, currentUser, productDeleted = false }) {
+export default function Chat({ chatId, initialMessages, currentUser, isConversationClosed = false }) {
     const [messages, setMessages] = useState(initialMessages || []);
     const [newMessage, setNewMessage] = useState('');
     const [isInterlocutorTyping, setIsInterlocutorTyping] = useState(false);
@@ -113,10 +113,10 @@ export default function Chat({ chatId, initialMessages, currentUser, productDele
                     value={newMessage}
                     onChange={handleInputChange}
                     className="flex-grow border-2 rounded px-3 py-2"
-                    placeholder={productDeleted ? "You cannot send messages in this conversation anymore" : "Write message..."}
-                    disabled={productDeleted}
+                    placeholder={isConversationClosed ? "You cannot send messages in this conversation anymore" : "Write message..."}
+                    disabled={isConversationClosed}
                 />
-                {productDeleted ?
+                {isConversationClosed ?
                     (
                      <></>
                     ) : (
