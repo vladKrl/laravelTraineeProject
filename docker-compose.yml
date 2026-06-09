@@ -20,6 +20,7 @@ services:
       XDG_CONFIG_HOME: ${PSYSH_CONFIG_DIR_PATH}
       PSYSH_CONFIG_DIR: ${PSYSH_CONFIG_DIR_PATH}
       HOME: ${PSYSH_CONFIG_DIR_PATH}
+    command: php-fpm
 
   reverb:
     volumes:
