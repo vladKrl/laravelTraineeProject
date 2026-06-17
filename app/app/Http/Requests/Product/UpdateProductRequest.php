@@ -29,16 +29,22 @@ class UpdateProductRequest extends FormRequest
         $isStrict = $this->input('status') === ProductStatus::ACTIVE->value ||
             (!$this->has('status') && $product->status === ProductStatus::ACTIVE);
 
+        $staticRules = ['sometimes', 'required'];
+
+        if ($product->status === ProductStatus::ARCHIVED) {
+            $staticRules[] = Rule::in(ProductStatus::ARCHIVED->value);
+        } else {
+            $staticRules[] = Rule::in([
+                ProductStatus::ACTIVE->value,
+                ProductStatus::DRAFT->value,
+            ]);
+        }
+
         return [
             'label'       => 'sometimes|required|string|max:255',
             'description' => $isStrict ? 'required|string|min:10|max:10000' : 'nullable|string',
             'price'       => $isStrict ? 'required|numeric|min:0' : 'nullable|numeric',
-            'status'      => ['sometimes',
-                'required',
-                Rule::in([
-                    ProductStatus::ACTIVE->value,
-                    ProductStatus::DRAFT->value,
-                ])],
+            'status'      => $staticRules,
             'categories'  => 'nullable|array',
             'categories.*'=> 'exists:categories,id',
             'region_id' => [

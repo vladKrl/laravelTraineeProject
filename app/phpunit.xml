@@ -18,6 +18,13 @@
         </include>
     </source>
     <php>
+        <env name="DB_CONNECTION" value="pgsql"/>
+        <env name="DB_HOST" value="db_test"/>
+        <env name="DB_PORT" value="5432"/>
+        <env name="DB_DATABASE" value="databasetest"/>
+        <env name="DB_USERNAME" value="user"/>
+        <env name="DB_PASSWORD" value="pasw"/>
+        <env name="SCOUT_DRIVER" value="null"/>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>

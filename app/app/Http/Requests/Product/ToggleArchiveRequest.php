@@ -5,6 +5,7 @@ namespace App\Http\Requests\Product;
 use App\Enums\ProductStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ToggleArchiveRequest extends FormRequest
 {
@@ -33,7 +34,12 @@ class ToggleArchiveRequest extends FormRequest
                 'string',
                 'in:sold,sold_not_here,deleted'
             ],
-            'buyer_id'       => 'required_if:archive_reason,sold|nullable|exists:users,id',
+            'buyer_id'       => [
+                'required_if:archive_reason,sold',
+                'nullable',
+                Rule::exists('conversation', 'buyer_id')
+                    ->where('product_id', $product?->id),
+            ],
         ];
     }
 }

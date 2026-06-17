@@ -15,6 +15,8 @@ export default function Chat({ chatId, initialMessages, currentUser, isConversat
     const firstScrollRef = useRef(true);
 
     useEffect(() => {
+        if (!echo || !chatId) return;
+
         const channel = echo.private(`chat.${chatId}`)
             .listen('.MessageSent', (e) => {
                 setMessages((prev) => {
@@ -36,8 +38,6 @@ export default function Chat({ chatId, initialMessages, currentUser, isConversat
                 typingTimeoutRef.current = setTimeout(() => {
                     setIsInterlocutorTyping(false);
                 }, 3000);
-
-                console.log(`${e.name} typing...`);
             });
 
         return () => {

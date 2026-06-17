@@ -4,8 +4,9 @@ import ProductList from "../components/products/ProductList";
 import React, {Suspense, useCallback, useEffect, useRef, useState} from 'react';
 import {useSearchParams} from "next/navigation";
 import api from "../../utils/api";
+import Nav from "../components/Nav";
 
-export default function ProductsPage() {
+function ProductsPageContent() {
     const [products, setProducts] = useState([]);
 
     const [page, setPage] = useState(1);
@@ -86,9 +87,9 @@ export default function ProductsPage() {
     return (
         <main style={{padding: 20}} className={"mb-8"}>
             <h1 className={"font-bold"}>Products</h1>
-            <Suspense fallback={<div>Loading...</div>}>
-                <ProductList products={products} loading={loading} error={error}/>
-            </Suspense>
+
+            <ProductList products={products} loading={loading} error={error}/>
+
             <div ref={lastProductElementRef} className={"h-10 pt-10"}>
                 {loadingMore && (
                     <div className={"animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"} />
@@ -98,5 +99,13 @@ export default function ProductsPage() {
                 )}
             </div>
         </main>
+    );
+}
+
+export default function ProductsPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <ProductsPageContent />
+        </Suspense>
     );
 }

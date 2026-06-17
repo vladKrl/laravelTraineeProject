@@ -14,6 +14,14 @@ export default function LocationSelector ({ onLocationChange, initialRegionId = 
     const [selectedCity, setSelectedCity] = useState(initialCityId);
 
     useEffect(() => {
+        setSelectedRegion(initialRegionId ?? null);
+    }, [initialRegionId]);
+
+    useEffect(() => {
+        setSelectedCity(initialCityId ?? null);
+    }, [initialCityId]);
+
+    useEffect(() => {
         const fetchRegions = async () => {
             try {
                 const response = await api.get('/api/locations');

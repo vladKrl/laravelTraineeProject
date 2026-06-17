@@ -4,9 +4,8 @@ namespace App\Http\Resources;
 
 use App\Models\Review;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 
-class ProductDetailResource extends JsonResource
+class ProductDetailResource extends ProductResource
 {
     /**
      * Transform the resource into an array.

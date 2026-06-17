@@ -21,7 +21,7 @@ class ProductPolicy
      */
     public function view(?User $user, Product $product): bool
     {
-        if (in_array($product->status, [ProductStatus::ACTIVE, ProductStatus::ARCHIVED])) {
+        if ($product->status === ProductStatus::ACTIVE) {
             return true;
         }
 
@@ -33,7 +33,7 @@ class ProductPolicy
             return true;
         }
 
-        return $user->id === $product->buyer_id && $product->status !== ProductStatus::DRAFT;
+        return $user->id === $product->buyer_id && $product->status === ProductStatus::ARCHIVED;
     }
 
     /**

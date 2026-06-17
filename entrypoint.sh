@@ -1,13 +1,14 @@
 #!/bin/sh
 
+rm -f /tmp/app-ready
+
 echo "Installing composer."
 composer install --no-interaction --optimize-autoloader
 
-if [ -z "$APP_KEY" ]; then
+if [ ! grep -q '^APP_KEY=base64:' .env ]; then
     echo "Generating application key."
     php artisan key:generate --force
 fi
-
 
 check_migration_status() {
     php artisan migrate:status > /dev/null 2>&1
@@ -30,4 +31,7 @@ if [ ! -d "public/storage" ]; then
 fi
 
 echo "Preparations are done."
+
+touch /tmp/app-ready
+
 exec "$@"

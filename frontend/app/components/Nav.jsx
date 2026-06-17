@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import {useAuth} from "../hooks/auth";
-import {useEffect, useState} from "react";
+import {Suspense, useEffect, useState} from "react";
 import {useRouter, useSearchParams} from "next/navigation";
 import Button from "./Button";
 import FilterBox from "./FilterBox";
@@ -42,7 +42,6 @@ export default function Nav() {
             <div>
                 <ul className={"flex space-x-4"}>
                     <Link href={"/"} className={"mr-2 ml-2"}>Home</Link>
-                    {/*<Link href={"#"} className={"mr-2 ml-2"}>About</Link>*/}
                     <Link href={"/products"} className={"mr-2 ml-2"}>Product Cards</Link>
                     {user && (
                         <div>
@@ -119,7 +118,9 @@ export default function Nav() {
                 <div className={"absolute top-20 right-0 bg-white shadow-xl z-50 p-4 border-b"}>
                     <div className={"container mx-auto"}>
                         <h3 className={"text-sm font-semibold mb-3 text-gray-500 uppercase"}>Choose the category:</h3>
-                        <FilterBox />
+                        <Suspense fallback={<div>Loading...</div>}>
+                            <FilterBox />
+                        </Suspense>
                     </div>
                 </div>
             )}

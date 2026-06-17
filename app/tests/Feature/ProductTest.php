@@ -17,13 +17,12 @@ class ProductTest extends TestCase
 
     public function test_can_get_products(): void
     {
-        Product::factory()->count(3)->create(['status' => ProductStatus::ACTIVE->value]);
-        Product::factory()->create(['status' => ProductStatus::DRAFT->value]);
+        Product::factory()->count(4)->create(['status' => ProductStatus::ACTIVE->value]);
 
         $response = $this->get('/api/products');
 
         $response->assertStatus(200)
-            ->assertJsonCount(3, 'data', )
+            ->assertJsonCount(4, 'data', )
             ->assertJsonStructure([
                 'data' => [
                     '*' => ['id', 'label', 'status']
@@ -78,6 +77,68 @@ class ProductTest extends TestCase
             'label'     => 'Valid product name',
             'user_id'   => $user->id,
             'status'    => ProductStatus::ACTIVE->value,
+        ]);
+    }
+
+    public function test_can_owner_edit_product()
+    {
+        $user = User::factory()->create();
+
+        $region = Location::factory()->create();
+
+        $product = Product::factory()->create([
+            'user_id'       => $user->id,
+            'label'         => 'Old name',
+            'description'   => 'Old description here too, that\'s nice!',
+            'price'         => 61,
+            'status'        => ProductStatus::ACTIVE->value,
+        ]);
+
+        $payload = [
+            'label'         => 'New name',
+            'description'   => 'New description for new product!',
+            'price'         => 10,
+            'region_id'     => $region->id,
+        ];
+
+        Sanctum::actingAs($user);
+
+        $response = $this->patchJson("/api/products/{$product->id}", $payload);
+
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('products', [
+            'id'            => $product->id,
+            'label'         => 'New name',
+            'description'   => 'New description for new product!',
+            'price'         => 10,
+        ]);
+
+        $this->assertDatabaseMissing('products', [
+            'id'            => $product->id,
+            'label'         => 'Old name',
+            'description'   => 'Old description here too!',
+            'price'         => 61,
+        ]);
+    }
+
+    public function test_can_owner_delete_product()
+    {
+        $user = User::factory()->create();
+
+        $product = Product::factory()->create([
+            'user_id'       => $user->id,
+            'status'        => ProductStatus::ACTIVE->value,
+        ]);
+
+        Sanctum::actingAs($user);
+
+        $response = $this->deleteJson("/api/products/$product->id");
+
+        $response->assertStatus(204);
+
+        $this->assertSoftDeleted('products',[
+            'id' => $product->id,
         ]);
     }
 }
