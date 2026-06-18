@@ -53,7 +53,9 @@ export default function ProductShow() {
                 ...response.data.data,
             }));
         } catch (error) {
-            console.error(error);
+            if (error.response?.status === 422 ) {
+                alert(error.response.data.errors.product[0]);
+            }
         }
     };
 

@@ -26,6 +26,7 @@ export default function ProductEdit() {
     const [label, setLabel] = useState('');
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState('');
+    const [initialStatus, setInitialStatus] = useState('');
 
     const [selectedCategories, setSelectedCategories] = useState([]);
 
@@ -58,6 +59,7 @@ export default function ProductEdit() {
                 setExistingImages(product.images || []);
                 setRegionId(product.region?.id);
                 setCityId(product.city?.id || null);
+                setInitialStatus(product.status);
 
                 const selectedCategoriesIds = product.categories?.map(c => c.id) || [];
                 setSelectedCategories(selectedCategoriesIds);
@@ -90,7 +92,7 @@ export default function ProductEdit() {
         setSelectedCategories(categoriesIds);
     }
 
-    const submitForm = async (e, status = 'active') => {
+    const submitForm = async (e, status = initialStatus) => {
         if (e) e.preventDefault();
 
         if (!label.trim() && status === 'draft') {
@@ -265,14 +267,14 @@ export default function ProductEdit() {
                     <Button
                         disabled={saving}
                     >
-                        {saving ? 'Applying...' : 'Edit & Publish'}
+                        {saving ? 'Applying...' : (initialStatus === 'archived' ? 'Edit Archived Product' : 'Edit & Publish')}
                     </Button>
 
                     <Button
                         type="button"
                         onClick={() => submitForm(null, 'draft')}
-                        disabled={saving}
-                        className={"ml-5 text-gray-950 bg-gray-500 hover:bg-gray-600"}
+                        disabled={saving || initialStatus === 'archived'}
+                        className={`ml-5 text-gray-950  ${initialStatus === 'archived' ? "bg-gray-700 hover:bg-gray-700" : "bg-gray-500 hover:bg-gray-600"}` }
                     >
                         {saving ? 'Applying...' : 'Edit draft'}
                     </Button>

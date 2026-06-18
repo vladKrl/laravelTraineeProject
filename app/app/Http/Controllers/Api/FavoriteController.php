@@ -23,14 +23,19 @@ class FavoriteController extends Controller implements HasMiddleware
 
     public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
+        $userId = auth()->id();
+
         $favorites = auth()->user()->favoriteProducts()
-            ->whereIn('status', [
-                ProductStatus::ACTIVE->value,
-                ProductStatus::ARCHIVED->value,
-            ])
+            ->where(function ($query) use ($userId) {
+                $query->where('status', ProductStatus::ACTIVE->value)
+                ->orWhere(function ($query) use ($userId) {
+                    $query->where('status', ProductStatus::ARCHIVED->value)
+                        ->where('buyer_id', $userId);
+                });
+            })
             ->with(['categories', 'mainImage'])
-            ->withExists(['favorites as is_favorite' => function ($q) {
-                $q->where('user_id', auth()->id());
+            ->withExists(['favorites as is_favorite' => function ($q) use ($userId) {
+                $q->where('user_id', $userId);
             }])
             ->latest('favorites.created_at')
             ->get();

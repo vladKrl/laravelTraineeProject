@@ -7,7 +7,7 @@ import Label from "../Label";
 import Button from "../Button";
 
 export default function ArchiveModal ({ product, isOpen, onClose, onWasArchived }) {
-    const [selectedBuyerOption, setSelectedBuyerOption] = useState('');
+    const [selectedBuyerOption, setSelectedBuyerOption] = useState('deleted');
 
     const [saving, setSaving] = useState(false);
 

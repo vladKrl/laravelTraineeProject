@@ -23,7 +23,7 @@
         <env name="DB_PORT" value="5432"/>
         <env name="DB_DATABASE" value="databasetest"/>
         <env name="DB_USERNAME" value="user"/>
-        <env name="DB_PASSWORD" value="pasw"/>
+        <env name="DB_PASSWORD" value="password"/>
         <env name="SCOUT_DRIVER" value="null"/>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>

@@ -4,7 +4,6 @@ import ProductList from "../components/products/ProductList";
 import React, {Suspense, useCallback, useEffect, useRef, useState} from 'react';
 import {useSearchParams} from "next/navigation";
 import api from "../../utils/api";
-import Nav from "../components/Nav";
 
 function ProductsPageContent() {
     const [products, setProducts] = useState([]);

@@ -34,9 +34,11 @@ class ReviewController extends Controller implements HasMiddleware
     {
         $this->authorize('create', [Review::class, $product]);
 
+        $data = $request->validated();
+
         $review = Review::create([
-            'rating'        => $request->rating,
-            'body'          => $request->body,
+            'rating'        => $data['rating'],
+            'body'          => $data['body'] ?? null,
             'author_id'     => auth()->id(),
             'receiver_id'   => $product->user_id,
             'product_id'    => $product->id,
@@ -56,7 +58,7 @@ class ReviewController extends Controller implements HasMiddleware
 
     public function published(User $user): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $reviews = $user->reviews()->with(['receiver', 'product'])->latest()->paginate(10);
+        $reviews = $user->reviews()->with(['receiver', 'author', 'product'])->latest()->paginate(10);
 
         return ReviewResource::collection($reviews);
     }
