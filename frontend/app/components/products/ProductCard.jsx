@@ -66,7 +66,7 @@ export default function ProductCard({ product, actions }) {
                     </p>
                 </div>
 
-                {Number(product.user_id) !== Number(user?.id) && product.status !== 'archived' && (
+                {user && Number(product.user_id) !== Number(user.id) && product.status !== 'archived' && (
                     <div className={"flex gap-3"}>
                         <LikeButton productId={product.id} initialIsFavorite={product.is_favorite} />
                         <ContactWithSeller productId={product.id} />

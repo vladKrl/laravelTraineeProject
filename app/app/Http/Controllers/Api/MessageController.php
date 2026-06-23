@@ -9,7 +9,6 @@ use App\Services\Conversation\ConversationService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 
 class MessageController extends Controller implements HasMiddleware
 {
@@ -25,7 +24,8 @@ class MessageController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('auth:sanctum'),
+            'auth:sanctum',
+            'verified',
         ];
     }
 

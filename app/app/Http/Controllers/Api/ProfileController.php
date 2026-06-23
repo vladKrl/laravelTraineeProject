@@ -25,6 +25,7 @@ class ProfileController extends Controller implements HasMiddleware
     {
         return [
             new Middleware('auth:sanctum', except: ['show']),
+            new Middleware('verified', except: ['show']),
         ];
     }
 

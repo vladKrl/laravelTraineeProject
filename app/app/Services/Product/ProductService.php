@@ -54,6 +54,13 @@ class ProductService
             $categories = $data['categories'] ?? [];
             unset($data['categories']);
 
+            $regionWasChanged = array_key_exists('region_id', $data)
+                && (int) $data['region_id'] !== (int) $product->region_id;
+
+            if ($regionWasChanged && !array_key_exists('city_id', $data)) {
+                $data['city_id'] = null;
+            }
+
             $product->update($data);
 
             if ($hasCategories) {

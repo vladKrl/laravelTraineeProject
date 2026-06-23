@@ -37,6 +37,7 @@ class ToggleArchiveRequest extends FormRequest
             ],
             'buyer_id'       => [
                 'required_if:archive_reason,sold',
+                'prohibited_unless:archive_reason,sold',
                 'nullable',
                 Rule::exists('conversations', 'buyer_id')
                     ->where('product_id', $product?->id),

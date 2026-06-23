@@ -53,9 +53,9 @@ class ConversationService
         });
     }
 
-    protected function validateProductStatus(Product $product): void
+    protected function validateProductStatus(?Product $product): void
     {
-        if ($product->status !== ProductStatus::ACTIVE) {
+        if (!$product || $product->status !== ProductStatus::ACTIVE) {
             throw ValidationException::withMessages([
                 'product_id' => ['You cannot send message. This product already archived or draft.'],
             ]);

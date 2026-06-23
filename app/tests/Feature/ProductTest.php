@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\ProductStatus;
 use App\Models\Category;
+use App\Models\Conversation;
 use App\Models\Location;
 use App\Models\Product;
 use App\Models\User;
@@ -140,5 +141,34 @@ class ProductTest extends TestCase
         $this->assertSoftDeleted('products',[
             'id' => $product->id,
         ]);
+    }
+
+    public function test_cannot_set_buyer_when_archive_reason_is_sold_not_here()
+    {
+        $seller = User::factory()->create();
+
+        $buyer = User::factory()->create();
+
+        $product = Product::factory()->create([
+            'user_id'       => $seller->id,
+            'status'        => ProductStatus::ACTIVE->value,
+        ]);
+
+        Conversation::factory()->create([
+            'product_id'    => $product->id,
+            'seller_id'     => $seller->id,
+            'buyer_id'      => $buyer->id,
+        ]);
+
+        Sanctum::actingAs($seller);
+
+        $response = $this->patchJson("/api/products/$product->id/toggleArchive", [
+            'archive_reason'    => 'sold_not_here',
+            'buyer_id'          => $buyer->id,
+        ]);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonValidationErrors(['buyer_id']);
     }
 }

@@ -18,6 +18,7 @@ class ProductResource extends JsonResource
             'id' => $this->id,
             'user_id' => $this->user_id,
             'label' => $this->label,
+            'description' => $this->description,
             'price' => isset($this->price) ? (float)$this->price : null,
             'status' => $this->status->value,
             'categories' => CategoryResource::collection($this->whenLoaded('categories')),

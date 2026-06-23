@@ -8,7 +8,6 @@ use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 
 class FavoriteController extends Controller implements HasMiddleware
 {
@@ -17,7 +16,8 @@ class FavoriteController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('auth:sanctum'),
+            'auth:sanctum',
+            'verified',
         ];
     }
 

@@ -16,7 +16,6 @@ class ProductDetailResource extends ProductResource
     {
         return array_merge(parent::toArray($request), [
             'picture_link' => $this->picture_link,
-            'description' => $this->description,
             'conversations' => ConversationResource::collection($this->whenLoaded('conversations')),
             'buyer' => new UserResource($this->whenLoaded('buyer')),
             'images' => ProductImageResource::collection($this->whenLoaded('images')),

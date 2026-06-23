@@ -20,6 +20,7 @@ class ReviewController extends Controller implements HasMiddleware
     {
         return [
             new Middleware('auth:sanctum', except: ['index', 'published']),
+            new Middleware('verified', except: ['index', 'published']),
         ];
     }
 
