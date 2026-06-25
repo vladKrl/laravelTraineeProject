@@ -26,6 +26,8 @@ class UpdateProductRequest extends FormRequest
     {
         $product = $this->route('product');
 
+        $regionId = $this->input('region_id', $product->region_id);
+
         $isStrict = $this->input('status') === ProductStatus::ACTIVE->value ||
             (!$this->has('status') && $product->status === ProductStatus::ACTIVE);
 
@@ -53,7 +55,7 @@ class UpdateProductRequest extends FormRequest
             ],
             'city_id' => [
                 'nullable',
-                Rule::exists('locations', 'id')->where('parent_id', $this->input('region_id')),
+                Rule::exists('locations', 'id')->where('parent_id', $regionId),
             ],
         ];
     }

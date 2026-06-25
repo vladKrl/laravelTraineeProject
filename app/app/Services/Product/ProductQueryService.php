@@ -86,6 +86,7 @@ class ProductQueryService
     {
         return $user->purchases()
             ->with(['categories', 'user', 'images', 'mainImage', 'region', 'city'])
+            ->withExists('reviews as has_review')
             ->latest('sold_at')
             ->get();
     }

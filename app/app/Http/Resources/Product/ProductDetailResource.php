@@ -1,7 +1,11 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Product;
 
+use App\Http\Resources\ConversationResource;
+use App\Http\Resources\LocationResource;
+use App\Http\Resources\ProductImageResource;
+use App\Http\Resources\UserResource;
 use App\Models\Review;
 use Illuminate\Http\Request;
 
@@ -20,8 +24,11 @@ class ProductDetailResource extends ProductResource
             'buyer' => new UserResource($this->whenLoaded('buyer')),
             'images' => ProductImageResource::collection($this->whenLoaded('images')),
             'can_review' => auth('sanctum')->check()
-                ? auth('sanctum')->user()->can('create', [Review::class, $this->resource])
-                : false,
+                && $this->buyer_id === auth('sanctum')->id()
+                && $this->sold_at
+                && (isset($this->has_review)
+                    ? !$this->has_review
+                    : auth('sanctum')->user()->can('create', [Review::class, $this->resource])),
             'region' => new LocationResource($this->whenLoaded('region')),
             'city' => new LocationResource($this->whenLoaded('city')),
             'user' => new UserResource($this->whenLoaded('user')),

@@ -22,10 +22,16 @@ class ProductSeeder extends Seeder
                 'email' => 'testmail@example.com'
             ],
             [
-            'name' => 'Test User',
-            'password' => bcrypt('password'),
+                'name' => 'Test User',
+                'password' => bcrypt('password'),
             ],
         );
+
+        if (!$user->hasVerifiedEmail()) {
+            $user->forceFill([
+                'email_verified_at' => now(),
+            ])->save();
+        }
 
         if (Location::count() === 0) {
             Location::factory()
