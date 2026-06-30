@@ -51,6 +51,8 @@ export default function Chat({ chatId, initialMessages, currentUser, isConversat
     const handleInputChange = (e) => {
         setNewMessage(e.target.value);
 
+        if (!echo || !chatId || isConversationClosed) return;
+
         echo.private(`chat.${chatId}`).whisper('typing', {
             name: currentUser.name,
         });

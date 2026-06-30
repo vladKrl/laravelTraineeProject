@@ -56,11 +56,6 @@ export default function FavoritesPage() {
                 message={"You haven't any Favorite products!"}
                 backLink={'/products'}
                 backText={"Go to Products"}
-                renderActions={(product) => {
-                    if (!product.is_favorite) {
-                        setProducts(prev => prev.filter(p => p.id !== product.id));
-                    }
-                }}
             />
         </div>
     )

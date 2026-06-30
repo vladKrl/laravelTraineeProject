@@ -105,11 +105,15 @@ export default function ReviewList ({ userId, type = 'received', onReviewDeleted
                                 )}
 
                                 {review.product ? (
-                                    <Link href={`/products/${review.product?.id}`}>
-                                        <img src={review.product.main_image?.path || 'https://placehold.co/80'} alt="Main image" className={"max-w-12 min-w-12 min-h-12 cursor-pointer hover:scale-120 rounded-md object-cover"}/>
-                                    </Link>
+                                    review.product.can_view ? (
+                                        <Link href={`/products/${review.product?.id}`}>
+                                            <img src={review.product.main_image?.path || 'https://placehold.co/80'} alt="Main image" className={"max-w-12 min-w-12 min-h-12 cursor-pointer hover:scale-120 rounded-md object-cover"}/>
+                                        </Link>
+                                    ) : (
+                                        <img src={review.product.main_image?.path || 'https://placehold.co/80'} alt="Main image" className={"max-w-12 min-w-12 min-h-12 rounded-md object-cover"}/>
+                                    )
                                 ) : (
-                                    <img src="https://placehold.co/80" alt="Deleted product" className={"max-w-12 min-w-12 min-h-12 cursor-pointer hover:scale-120 rounded-md object-cover"}/>
+                                    <img src="https://placehold.co/80" alt="Deleted product" className={"max-w-12 min-w-12 min-h-12 rounded-md object-cover"}/>
                                 )}
                             </div>
 
