@@ -15,13 +15,14 @@ export const useAuth = ({middleware} = {}) => {
             .get("/api/user")
             .then(response => response.data.data)
             .catch(error => {
-                if (error.response.status !== 409)
+                if (error.response?.status !== 409)
                     throw error;
             })
         );
 
     const login = async ({setErrors, ...props}) => {
         setErrors([]);
+
         try {
             await csrf();
 
@@ -31,18 +32,29 @@ export const useAuth = ({middleware} = {}) => {
 
             router.push("/");
         } catch(error) {
-            if (error.response.status !== 422) throw error;
+            if (error?.response) {
+                if (error.response.status !== 422) throw error;
 
-            setErrors(Object.values(error.response.data.errors).flat());
+                setErrors(Object.values(error.response.data.errors).flat());
+            } else if (error.request) {
+                console.error("Server is not answering.");
+
+                setErrors(["Server is not available."]);
+            } else
+                throw error;
         }
     }
 
     const logout = async () => {
-        await api.post("/logout");
+        try {
+            await api.post("/logout");
+        } catch (error) {
+            console.error("Logout has failed.", error);
+        } finally {
+            await mutate(null);
 
-        await mutate(null);
-
-        router.push("/")
+            router.push("/");
+        }
     }
 
     const register = async ({ setErrors, ...props}) => {
@@ -56,21 +68,36 @@ export const useAuth = ({middleware} = {}) => {
 
             router.push("/");
         } catch (error) {
-            if (error.response) {
+            if (error?.response) {
                 if (error.response.status !== 422) throw error;
 
                 setErrors(Object.values(error.response.data.errors).flat());
             } else if (error.request) {
                 console.error("Server is not answering.");
+
                 setErrors(["Server is not available."]);
             } else
                 throw error;
         }
     }
 
-    const resendEmailVerification = ({ setStatus }) => {
-        api.post('/email/verification-notification')
-            .then(response => setStatus(response.data.status));
+    const resendEmailVerification = async ({ setStatus, setErrors }) => {
+        try {
+            const response = await api.post('/email/verification-notification');
+
+            setStatus(response.data.status);
+        } catch (error) {
+            if (error?.response) {
+                if (error.response.status !== 429) throw error;
+
+                setErrors(Object.values(error.response?.data?.errors).flat());
+            } else if (error.request) {
+                console.error("Server is not answering.");
+
+                setErrors(["Server is not available."]);
+            } else
+                throw error;
+        }
     };
 
     useEffect(() => {

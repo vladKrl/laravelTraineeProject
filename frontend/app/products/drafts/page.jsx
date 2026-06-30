@@ -6,7 +6,7 @@ import {useAuth} from "../../hooks/auth";
 import ProductList from "../../components/products/ProductList";
 
 export default function DraftsPage() {
-    const { user } = useAuth({middleware: 'auth'});
+    const { user, isLoading } = useAuth({middleware: 'auth'});
 
     const [products, setProducts] = useState([]);
 
@@ -14,6 +14,8 @@ export default function DraftsPage() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        if (isLoading || !user) return;
+
         const fetchDrafts = async () => {
             try {
                 const response = await api.get('api/products/drafts');
@@ -33,7 +35,7 @@ export default function DraftsPage() {
         }
 
         fetchDrafts();
-    }, []);
+    }, [isLoading, user]);
 
     return (
         <div className={"p-6"}>

@@ -6,13 +6,15 @@ import {useAuth} from "../../hooks/auth";
 import ProductList from "../../components/products/ProductList";
 
 export default function ArchivedPage() {
-    const { user } = useAuth({middleware: 'auth'});
+    const { user, isLoading } = useAuth({middleware: 'auth'});
 
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        if (isLoading || !user) return;
+
         const fetchArchivedProducts = async () => {
             try {
                 const response = await api.get('api/products/archived');
@@ -32,7 +34,7 @@ export default function ArchivedPage() {
         }
 
         fetchArchivedProducts();
-    }, []);
+    }, [isLoading, user]);
 
     return (
         <div className={"p-6"}>

@@ -18,7 +18,7 @@ class CategoryFactory extends Factory
     {
         return [
             'label' => $this->faker->sentence(rand(1,3)),
-            'slug' => $this->faker->slug,
+            'slug' => $this->faker->unique()->slug,
             'created_at' => now(),
         ];
     }

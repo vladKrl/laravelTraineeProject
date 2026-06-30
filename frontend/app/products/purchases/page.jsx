@@ -7,7 +7,7 @@ import ProductList from "../../components/products/ProductList";
 import Link from "next/link";
 
 export default function PurchasesPage() {
-    const { user } = useAuth({middleware: 'auth'});
+    const { user, isLoading } = useAuth({middleware: 'auth'});
 
     const [products, setProducts] = useState([]);
 
@@ -15,7 +15,7 @@ export default function PurchasesPage() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (!user) return;
+        if (isLoading || !user) return;
 
         const fetchPurchases = async () => {
             try {
@@ -36,7 +36,7 @@ export default function PurchasesPage() {
         }
 
         fetchPurchases();
-    }, [user]);
+    }, [isLoading, user]);
 
     return (
         <div className={"p-6"}>

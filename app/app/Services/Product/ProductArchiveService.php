@@ -20,11 +20,13 @@ class ProductArchiveService
                     'sold_at'           => null,
                 ]);
             } else {
+                $reason = $data['archive_reason'];
+
                 $product->update([
                     'status'         => ProductStatus::ARCHIVED->value,
-                    'archive_reason' => $data['archive_reason'],
-                    'buyer_id'       => $data['buyer_id'] ?? null,
-                    'sold_at'        => in_array($data['archive_reason'], ['sold', 'sold_not_here']) ? now() : null,
+                    'archive_reason' => $reason,
+                    'buyer_id'       => $reason === 'sold' ? ($data['buyer_id'] ?? null) : null,
+                    'sold_at'        => in_array($reason, ['sold', 'sold_not_here'], true) ? now() : null,
                 ]);
             }
 
