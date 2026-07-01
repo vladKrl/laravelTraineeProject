@@ -34,7 +34,7 @@ class MessageController extends Controller implements HasMiddleware
         $this->authorize('participate', $conversation);
 
         $data = $request->validate([
-            'body' => 'required|string',
+            'body' => 'required|string|max:2000',
         ]);
 
         $message = $this->conversationService

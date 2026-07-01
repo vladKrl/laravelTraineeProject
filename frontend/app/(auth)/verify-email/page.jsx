@@ -8,12 +8,14 @@ import Button from "../../components/Button";
 export default function VerifyEmail() {
     const { logout, resendEmailVerification } = useAuth({middleware: 'auth'})
 
+    const [errors, setErrors] = useState([]);
+
     const [status, setStatus] = useState(null);
 
     const submit = (e) => {
         e.preventDefault();
 
-        resendEmailVerification({ setStatus });
+        resendEmailVerification({ setStatus, setErrors });
     };
 
     return (

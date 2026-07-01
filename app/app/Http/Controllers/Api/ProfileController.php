@@ -29,21 +29,35 @@ class ProfileController extends Controller implements HasMiddleware
         ];
     }
 
-    public function show(Profile $profile): ProfileResource
+    private function loadProfileRelations(Profile $profile): Profile
     {
+        $currentUser = auth('sanctum')->user();
+
         $isOwner = auth('sanctum')->id() === $profile->user_id;
 
         $profile->load([
-            'user.products' => function ($query) use ($isOwner) {
+            'user.products' => function ($query) use ($currentUser, $isOwner) {
                 if (!$isOwner) {
                     $query->where('status', ProductStatus::ACTIVE->value);
-                }},
+                }
+
+                if ($currentUser) {
+                    $query->withExists(['favorites as is_favorite' => function ($q) use ($currentUser) {
+                        $q->where('user_id', $currentUser->id);
+                    }]);
+                }
+            },
             'user.products.images',
             'user.products.mainImage',
             'user.products.categories'
         ]);
 
-        return new ProfileResource($profile);
+        return $profile;
+    }
+
+    public function show(Profile $profile): ProfileResource
+    {
+        return new ProfileResource($this->loadProfileRelations($profile));
     }
 
     public function update(UpdateProfileRequest $request, Profile $profile): ProfileResource
@@ -52,7 +66,7 @@ class ProfileController extends Controller implements HasMiddleware
 
         $profile->update($data);
 
-        return new ProfileResource($profile->load('user'));
+        return new ProfileResource($this->loadProfileRelations($profile));
     }
 
     public function uploadAvatar(UploadAvatarRequest $request, Profile $profile): ProfileResource
@@ -63,6 +77,6 @@ class ProfileController extends Controller implements HasMiddleware
                 $profile,
             );
 
-        return new ProfileResource($profile);
+        return new ProfileResource($this->loadProfileRelations($profile));
     }
 }

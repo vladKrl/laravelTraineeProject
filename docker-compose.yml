@@ -102,9 +102,14 @@ services:
   db_test:
     volumes:
       - pgtestdata-volume:/var/lib/postgresql
+    image: postgres
     env_file:
       - postgretest.env
-    image: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d databasetest"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     ports:
       - "${POSTGRESQL_TEST_HOST_PORT}:5432"
     networks:

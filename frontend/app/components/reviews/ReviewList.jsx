@@ -3,7 +3,6 @@
 import {useEffect, useState} from "react";
 import api from "../../../utils/api";
 import Link from "next/link";
-import {useRouter} from "next/navigation";
 import {useAuth} from "../../hooks/auth";
 import Button from "../Button";
 
@@ -14,25 +13,29 @@ export default function ReviewList ({ userId, type = 'received', onReviewDeleted
     const { user  } = useAuth();
 
     const [loading, setLoading] = useState(true);
-    const router = useRouter();
+
+    const fetchReviews = async (page = 1) => {
+        try {
+            const response = await api.get(`api/users/${userId}/reviews`, {
+                params: {page}
+            });
+
+            if (page === 1) {
+                setReviews(response.data.data);
+            } else {
+                setReviews(prevReviews => [...prevReviews, ...response.data.data]);
+            }
+
+            setMeta(response.data.meta)
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     useEffect(() => {
-        const fetchReviews = async (page = 1) => {
-            try {
-                const response = await api.get(`api/users/${userId}/reviews`, {
-                    params: {page}
-                });
-
-                setReviews(response.data.data);
-                setMeta(response.data.meta)
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        if (userId) fetchReviews();
+        if (userId) fetchReviews(1);
     }, [userId]);
 
 
@@ -131,6 +134,13 @@ export default function ReviewList ({ userId, type = 'received', onReviewDeleted
                     ))}
                 </div>
             )}
+
+            {meta && meta.current_page < meta.last_page && (
+                <Button onClick={() => fetchReviews(meta.current_page + 1)}>
+                    Load more
+                </Button>
+            )}
+
         </div>
     );
 }
