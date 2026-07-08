@@ -134,7 +134,7 @@ class ProductTest extends TestCase
 
         Sanctum::actingAs($user);
 
-        $response = $this->deleteJson("/api/products/$product->id");
+        $response = $this->deleteJson("/api/products/{$product->id}");
 
         $response->assertStatus(204);
 
@@ -162,7 +162,7 @@ class ProductTest extends TestCase
 
         Sanctum::actingAs($seller);
 
-        $response = $this->patchJson("/api/products/$product->id/toggleArchive", [
+        $response = $this->patchJson("/api/products/{$product->id}/toggleArchive", [
             'archive_reason'    => 'sold_not_here',
             'buyer_id'          => $buyer->id,
         ]);
@@ -170,5 +170,275 @@ class ProductTest extends TestCase
         $response->assertStatus(422);
 
         $response->assertJsonValidationErrors(['buyer_id']);
+    }
+
+    public function test_guest_cannot_view_draft_product()
+    {
+        $user = User::factory()->create();
+
+        $product = Product::factory()->create([
+            'user_id'   => $user->id,
+            'status'    => ProductStatus::DRAFT->value,
+        ]);
+
+        $response = $this->getJson("/api/products/{$product->id}");
+
+        $response->assertStatus(403);
+    }
+
+    public function test_guest_cannot_view_archived_product()
+    {
+        $user = User::factory()->create();
+
+        $product = Product::factory()->create([
+            'user_id'   => $user->id,
+            'status'    => ProductStatus::ARCHIVED->value,
+        ]);
+
+        $response = $this->getJson("/api/products/{$product->id}");
+
+        $response->assertStatus(403);
+    }
+
+    public function test_buyer_can_view_archived_purchased_product()
+    {
+        $seller = User::factory()->create();
+
+        $buyer = User::factory()->create();
+
+        $product = Product::factory()->create([
+            'user_id'           => $seller->id,
+            'status'            => ProductStatus::ARCHIVED->value,
+            'archive_reason'    => 'sold',
+            'buyer_id'          => $buyer->id,
+        ]);
+
+        Sanctum::actingAs($buyer);
+
+        $response = $this->getJson("/api/products/{$product->id}");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.id', $product->id);
+    }
+
+    public function test_seller_can_archive_product_as_sold_with_buyer_from_conversation()
+    {
+        $seller = User::factory()->create();
+
+        $buyer = User::factory()->create();
+
+        $product = Product::factory()->create([
+            'user_id'   => $seller->id,
+            'status'    => ProductStatus::ACTIVE->value,
+        ]);
+
+        Conversation::factory()->create([
+            'product_id'    => $product->id,
+            'seller_id'     => $seller->id,
+            'buyer_id'      => $buyer->id,
+        ]);
+
+        Sanctum::actingAs($seller);
+
+        $response = $this->patchJson("/api/products/{$product->id}/toggleArchive", [
+            'archive_reason'    => 'sold',
+            'buyer_id'          => $buyer->id,
+        ]);
+
+        $response->assertStatus(200);
+
+        $this->assertDatabaseHas('products', [
+            'id'                => $product->id,
+            'status'            => ProductStatus::ARCHIVED->value,
+            'buyer_id'          => $buyer->id,
+            'archive_reason'    => 'sold',
+        ]);
+    }
+
+    public function test_seller_cannot_archive_product_as_sold_with_random_user()
+    {
+        $seller = User::factory()->create();
+
+        $randomUser = User::factory()->create();
+
+        $product = Product::factory()->create([
+            'user_id'   => $seller->id,
+            'status'    => ProductStatus::ACTIVE->value,
+        ]);
+
+        Sanctum::actingAs($seller);
+
+        $response = $this->patchJson("/api/products/{$product->id}/toggleArchive", [
+            'archive_reason'    => 'sold',
+            'buyer_id'          => $randomUser->id,
+        ]);
+
+        $response->assertStatus(422);
+
+        $this->assertDatabaseHas('products', [
+            'id'        => $product->id,
+            'status'    => ProductStatus::ACTIVE->value,
+            'buyer_id'  => null,
+        ]);
+    }
+
+    public function test_non_participant_cannot_send_message()
+    {
+        $seller = User::factory()->create();
+
+        $buyer = User::factory()->create();
+
+        $nonParticipant = User::factory()->create();
+
+        $product = Product::factory()->create([
+            'user_id'   => $seller->id,
+            'status'    => ProductStatus::ACTIVE->value,
+        ]);
+
+        $conversation = Conversation::factory()->create([
+            'product_id'    => $product->id,
+            'seller_id'     => $seller->id,
+            'buyer_id'      => $buyer->id,
+        ]);
+
+        Sanctum::actingAs($nonParticipant);
+
+        $response = $this->postJson("/api/conversations/{$conversation->id}/messages", [
+            'body'  => 'Random message from non-participant user.',
+        ]);
+
+        $response->assertStatus(403);
+
+        $this->assertDatabaseMissing('messages', [
+            'conversation_id'   => $conversation->id,
+            'body'              => 'Random message from non-participant user.',
+        ]);
+    }
+
+    public function test_cannot_send_message_when_product_is_archived()
+    {
+        $seller = User::factory()->create();
+
+        $buyer = User::factory()->create();
+
+        $product = Product::factory()->create([
+            'user_id'   => $seller->id,
+            'status'    => ProductStatus::ARCHIVED->value,
+            'archive_reason'    => 'sold',
+            'buyer_id'          => $buyer->id,
+        ]);
+
+        $conversation = Conversation::factory()->create([
+            'product_id'    => $product->id,
+            'seller_id'     => $seller->id,
+            'buyer_id'      => $buyer->id,
+        ]);
+
+        Sanctum::actingAs($buyer);
+
+        $response = $this->postJson("/api/conversations/{$conversation->id}/messages", [
+            'body'  => 'Random message from user.',
+        ]);
+
+        $response->assertStatus(422);
+
+        $this->assertDatabaseMissing('messages', [
+            'conversation_id'   => $conversation->id,
+            'body'              => 'Random message from user.',
+        ]);
+    }
+
+    public function test_cannot_send_message_when_product_is_soft_deleted()
+    {
+        $seller = User::factory()->create();
+
+        $buyer = User::factory()->create();
+
+        $product = Product::factory()->create([
+            'user_id'   => $seller->id,
+            'status'    => ProductStatus::ACTIVE->value,
+            'deleted_at'    => now(),
+        ]);
+
+        $conversation = Conversation::factory()->create([
+            'product_id'    => $product->id,
+            'seller_id'     => $seller->id,
+            'buyer_id'      => $buyer->id,
+        ]);
+
+        Sanctum::actingAs($buyer);
+
+        $response = $this->postJson("/api/conversations/{$conversation->id}/messages", [
+            'body'  => 'Random message from user.',
+        ]);
+
+        $response->assertStatus(422);
+
+        $this->assertDatabaseMissing('messages', [
+            'conversation_id'   => $conversation->id,
+            'body'              => 'Random message from user.',
+        ]);
+    }
+
+    public function test_favorite_index_does_not_return_inaccessible_archived_products()
+    {
+        $seller = User::factory()->create();
+
+        $liker = User::factory()->create();
+
+        $productArchived = Product::factory()->create([
+            'user_id'       => $seller->id,
+            'status'        => ProductStatus::ARCHIVED->value,
+        ]);
+
+        $productActive = Product::factory()->create([
+            'user_id'       => $seller->id,
+            'status'        => ProductStatus::ACTIVE->value,
+        ]);
+
+        $liker->favoriteProducts()->attach([
+            $productActive->id,
+            $productArchived->id,
+        ]);
+
+        Sanctum::actingAs($liker);
+
+        $response = $this->getJson("/api/favorites");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonFragment(['id' => $productActive->id]);
+
+        $response->assertJsonMissing(['id' => $productArchived->id]);
+    }
+
+    public function test_message_body_over_2000_chars_returns_422()
+    {
+        $seller = User::factory()->create();
+
+        $buyer = User::factory()->create();
+
+        $product = Product::factory()->create([
+            'user_id'   => $seller->id,
+            'status'    => ProductStatus::ACTIVE->value,
+        ]);
+
+        $conversation = Conversation::factory()->create([
+            'product_id'    => $product->id,
+            'seller_id'     => $seller->id,
+            'buyer_id'      => $buyer->id,
+        ]);
+
+        Sanctum::actingAs($seller);
+
+        $response = $this->postJson("/api/conversations/{$conversation->id}/messages", [
+            'body'  => str_repeat('Repeat', 350),
+        ]);
+
+        $response->assertStatus(422);
+
+        $this->assertDatabaseMissing('messages', [
+            'conversation_id'   => $conversation->id,
+        ]);
     }
 }
