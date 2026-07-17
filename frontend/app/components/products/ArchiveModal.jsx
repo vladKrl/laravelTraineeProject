@@ -40,7 +40,7 @@ export default function ArchiveModal ({ product, isOpen, onClose, onWasArchived 
         }
 
         try {
-            const response = await api.patch(`/api/products/${product.id}/toggleArchive`, {
+            const response = await api.patch(`/api/products/${product.id}/archive`, {
                 archive_reason: reason,
                 buyer_id: buyerId,
             });

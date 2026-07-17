@@ -121,7 +121,7 @@ export default function ProfileShow() {
 
             <div className={"grid grid-cols-3 gap-8"}>
                 <div className={"col-span-1"}>
-                    <ReviewList userId={id} key={refreshTrigger} onReviewDeleted={() => setRefreshTrigger(prev => prev + 1)} />
+                    <ReviewList userId={id}/>
                 </div>
             </div>
         </div>

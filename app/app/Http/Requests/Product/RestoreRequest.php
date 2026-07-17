@@ -8,7 +8,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 use Illuminate\Validation\Rule;
 
-class ToggleArchiveRequest extends FormRequest
+class RestoreRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,23 +25,9 @@ class ToggleArchiveRequest extends FormRequest
      */
     public function rules(): array
     {
-        $product = $this->route('product');
-
-        $isArchiving = $product && $product->status !== ProductStatus::ARCHIVED;
-
         return [
-            'archive_reason' => [
-                $isArchiving ? 'required' : 'sometimes',
-                'string',
-                'in:sold,sold_not_here,deleted'
-            ],
-            'buyer_id'       => [
-                'required_if:archive_reason,sold',
-                'prohibited_unless:archive_reason,sold',
-                'nullable',
-                Rule::exists('conversations', 'buyer_id')
-                    ->where('product_id', $product?->id),
-            ],
+            'archive_reason' => ['prohibited'],
+            'buyer_id'       => ['prohibited'],
         ];
     }
 

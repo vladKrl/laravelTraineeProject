@@ -46,7 +46,7 @@ export default function ProductShow() {
 
     const handlePutFromArchive = async () => {
         try {
-            const response = await api.patch(`api/products/${product.id}/toggleArchive`);
+            const response = await api.patch(`api/products/${product.id}/restore`);
 
             setProduct(prev => ({
                 ...prev,

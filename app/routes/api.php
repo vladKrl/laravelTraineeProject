@@ -26,7 +26,9 @@ Route::get('products/drafts', [ProductController::class, 'getDrafts']);
 
 Route::apiResource('products', ProductController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
 
-Route::patch('products/{product}/toggleArchive', [ProductController::class, 'toggleArchive']);
+Route::patch('products/{product}/archive', [ProductController::class, 'archive']);
+
+Route::patch('products/{product}/restore', [ProductController::class, 'restore']);
 
 Route::post('products/{product}/images', [ProductController::class, 'uploadImages']);
 
@@ -50,6 +52,6 @@ Route::post('products/{product}/reviews', [ReviewController::class, 'store']);
 
 Route::get('users/{user}/reviews', [ReviewController::class, 'index']);
 
-Route::delete('products/{product}/reviews/{review}', [ReviewController::class, 'destroy'])->scopeBindings();
+Route::delete('reviews/{review}', [ReviewController::class, 'destroy']);
 
 Route::get('users/{user}/reviews/published', [ReviewController::class, 'published']);

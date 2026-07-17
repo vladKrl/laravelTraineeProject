@@ -35,7 +35,13 @@ export const useAuth = ({middleware} = {}) => {
             if (error?.response) {
                 if (error.response.status !== 422) throw error;
 
-                setErrors(Object.values(error.response.data.errors).flat());
+                const responseErrors = error.response?.data?.errors;
+
+                setErrors(
+                    responseErrors
+                        ? Object.values(responseErrors).flat()
+                        : [error.response?.data?.message || 'Too many attempts. Please try again later.']
+                );
             } else if (error.request) {
                 console.error("Server is not answering.");
 
@@ -59,6 +65,7 @@ export const useAuth = ({middleware} = {}) => {
 
     const register = async ({ setErrors, ...props}) => {
         setErrors([]);
+
         try {
             await csrf();
 
@@ -71,7 +78,13 @@ export const useAuth = ({middleware} = {}) => {
             if (error?.response) {
                 if (error.response.status !== 422) throw error;
 
-                setErrors(Object.values(error.response.data.errors).flat());
+                const responseErrors = error.response?.data?.errors;
+
+                setErrors(
+                    responseErrors
+                        ? Object.values(responseErrors).flat()
+                        : [error.response?.data?.message || 'Too many attempts. Please try again later.']
+                );
             } else if (error.request) {
                 console.error("Server is not answering.");
 
@@ -82,6 +95,9 @@ export const useAuth = ({middleware} = {}) => {
     }
 
     const resendEmailVerification = async ({ setStatus, setErrors }) => {
+        setErrors([]);
+        setStatus(null);
+
         try {
             const response = await api.post('/email/verification-notification');
 
@@ -90,7 +106,13 @@ export const useAuth = ({middleware} = {}) => {
             if (error?.response) {
                 if (error.response.status !== 429) throw error;
 
-                setErrors(Object.values(error.response?.data?.errors).flat());
+                const responseErrors = error.response?.data?.errors;
+
+                setErrors(
+                    responseErrors
+                        ? Object.values(responseErrors).flat()
+                        : [error.response?.data?.message || 'Too many attempts. Please try again later.']
+                );
             } else if (error.request) {
                 console.error("Server is not answering.");
 

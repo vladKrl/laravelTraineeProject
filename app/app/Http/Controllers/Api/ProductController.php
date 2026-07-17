@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Product\RestoreRequest;
 use App\Http\Requests\Product\StoreProductRequest;
-use App\Http\Requests\Product\ToggleArchiveRequest;
+use App\Http\Requests\Product\ArchiveRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
 use App\Http\Requests\Product\UploadProductImagesRequest;
 use App\Http\Resources\Product\ProductDetailResource;
@@ -138,15 +139,25 @@ class ProductController extends Controller implements HasMiddleware
         return ProductResource::collection($products);
     }
 
-    public function toggleArchive(ToggleArchiveRequest $request, Product $product): ProductDetailResource
+    public function archive(ArchiveRequest $request, Product $product): ProductDetailResource
     {
         $this->authorize('update', $product);
 
         $product = $this->productArchiveService
-            ->toggleArchive(
+            ->archive(
                 $request->validated(),
                 $product
             );
+
+        return new ProductDetailResource($product);
+    }
+
+    public function restore(RestoreRequest $request, Product $product): ProductDetailResource
+    {
+        $this->authorize('update', $product);
+
+        $product = $this->productArchiveService
+            ->restore($product);
 
         return new ProductDetailResource($product);
     }

@@ -48,7 +48,7 @@ class ReviewController extends Controller implements HasMiddleware
         return new ReviewResource($review->load(['author', 'product']));
     }
 
-    public function destroy(Product $product, Review $review): \Illuminate\Http\Response
+    public function destroy(Review $review): \Illuminate\Http\Response
     {
         $this->authorize('delete', $review);
 

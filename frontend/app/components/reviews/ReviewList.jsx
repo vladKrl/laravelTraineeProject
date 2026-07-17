@@ -6,17 +6,28 @@ import Link from "next/link";
 import {useAuth} from "../../hooks/auth";
 import Button from "../Button";
 
-export default function ReviewList ({ userId, type = 'received', onReviewDeleted }) {
+export default function ReviewList ({ userId, type = 'received' }) {
     const [reviews, setReviews] = useState([]);
     const [meta, setMeta] = useState(null);
 
     const { user  } = useAuth();
 
     const [loading, setLoading] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
+
+    const endpoint = type === 'published'
+        ? `/api/users/${userId}/reviews/published`
+        : `/api/users/${userId}/reviews`;
 
     const fetchReviews = async (page = 1) => {
+        if (page === 1) {
+            setLoading(true);
+        } else {
+            setLoadingMore(true);
+        }
+
         try {
-            const response = await api.get(`api/users/${userId}/reviews`, {
+            const response = await api.get(endpoint, {
                 params: {page}
             });
 
@@ -31,6 +42,7 @@ export default function ReviewList ({ userId, type = 'received', onReviewDeleted
             console.error(error);
         } finally {
             setLoading(false);
+            setLoadingMore(false);
         }
     }
 
@@ -39,13 +51,7 @@ export default function ReviewList ({ userId, type = 'received', onReviewDeleted
     }, [userId]);
 
 
-    const handleDelete = async (reviewId, productId) => {
-        if (!productId) {
-            console.error('Product ID is missing!');
-
-            return;
-        }
-
+    const handleDelete = async (reviewId) => {
         const isConfirmed = window.confirm('Please confirm you want to delete your review (cannot be undone)!');
 
         if (!isConfirmed) {
@@ -53,9 +59,9 @@ export default function ReviewList ({ userId, type = 'received', onReviewDeleted
         }
 
         try {
-            await api.delete(`api/products/${productId}/reviews/${reviewId}`);
+            await api.delete(`/api/reviews/${reviewId}`);
 
-            onReviewDeleted();
+            setReviews(prev => prev.filter(review => review.id !== reviewId));
         } catch (error) {
             console.error(error);
         }
@@ -78,7 +84,7 @@ export default function ReviewList ({ userId, type = 'received', onReviewDeleted
             </h3>
 
             {reviews.length === 0 ? (
-                <p className="text-gray-500">No reviews yet. Try to sell something!</p>
+                <p className="text-gray-500">No reviews yet.</p>
             ) : (
                 <div>
                     {reviews.map((review) => (
@@ -123,7 +129,7 @@ export default function ReviewList ({ userId, type = 'received', onReviewDeleted
                             {user && Number(review.author.id) === Number(user.id) &&
                                 <div>
                                     <Button
-                                        onClick={() => handleDelete(review.id, review.product?.id)}
+                                        onClick={() => handleDelete(review.id)}
                                         className={"bg-red-500 border-3 border-red-800 hover:bg-red-600 text-white px-2 py-3"}
                                     >
                                         Delete review
@@ -136,8 +142,11 @@ export default function ReviewList ({ userId, type = 'received', onReviewDeleted
             )}
 
             {meta && meta.current_page < meta.last_page && (
-                <Button onClick={() => fetchReviews(meta.current_page + 1)}>
-                    Load more
+                <Button
+                    disabled={loadingMore}
+                    onClick={() => fetchReviews(meta.current_page + 1)}
+                >
+                    {loadingMore ? 'Loading...' : 'Load more'}
                 </Button>
             )}
 
