@@ -89,8 +89,6 @@ class ProductController extends Controller implements HasMiddleware
 
     public function update(UpdateProductRequest $request, Product $product): ProductDetailResource
     {
-        $this->authorize('update', $product);
-
         $this->productService
             ->updateProduct(
                 $request->validated(),
@@ -141,8 +139,6 @@ class ProductController extends Controller implements HasMiddleware
 
     public function archive(ArchiveRequest $request, Product $product): ProductDetailResource
     {
-        $this->authorize('update', $product);
-
         $product = $this->productArchiveService
             ->archive(
                 $request->validated(),
@@ -154,8 +150,6 @@ class ProductController extends Controller implements HasMiddleware
 
     public function restore(RestoreRequest $request, Product $product): ProductDetailResource
     {
-        $this->authorize('update', $product);
-
         $product = $this->productArchiveService
             ->restore($product);
 
@@ -164,15 +158,13 @@ class ProductController extends Controller implements HasMiddleware
 
     public function uploadImages(UploadProductImagesRequest $request, Product $product): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $this->authorize('update', $product);
-
         $data = $request->validated();
 
         $images = $data['images'];
         unset($data['images']);
 
-        $productImages = $this->productImageService->uploadImages($images, $product);
-
+        $productImages = $this->productImageService
+            ->uploadImages($images, $product);
 
         return ProductImageResource::collection($productImages);
     }

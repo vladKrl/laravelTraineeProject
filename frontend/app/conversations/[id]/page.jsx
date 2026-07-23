@@ -13,6 +13,7 @@ export default function ConversationShow() {
     const [loading, setLoading] = useState(true);
     const [conversation, setConversation] = useState([]);
 
+    const [meta, setMeta] = useState({});
 
     const router = useRouter();
 
@@ -24,6 +25,8 @@ export default function ConversationShow() {
                 const messagesRes = await api.get(`api/conversations/${id}`);
 
                 setConversation(messagesRes.data.data);
+
+                setMeta(messagesRes.data.meta || {});
             } catch (error) {
                 console.error(error);
 
@@ -63,6 +66,8 @@ export default function ConversationShow() {
                 key={id}
                 chatId={id}
                 initialMessages={conversation.messages || []}
+                initialNextCursor={meta?.next_cursor || null}
+                initialHasMore={meta?.has_more || false}
                 currentUser={user}
                 isConversationClosed={productUnavailable}
             />

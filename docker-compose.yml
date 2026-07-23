@@ -85,8 +85,8 @@ services:
 
   db:
     volumes:
-      - pgdata-volume:/var/lib/postgresql/data
-    image: postgres
+      - pgdata-volume:/var/lib/postgresql
+    image: postgres:18
     env_file:
       - postgre.env
     healthcheck:
@@ -101,8 +101,8 @@ services:
 
   db_test:
     volumes:
-      - pgtestdata-volume:/var/lib/postgresql/data
-    image: postgres
+      - pgtestdata-volume:/var/lib/postgresql
+    image: postgres:18
     env_file:
       - postgretest.env
     healthcheck:

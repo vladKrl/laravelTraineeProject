@@ -4,11 +4,13 @@ namespace App\Services\Product;
 
 use App\Enums\ProductStatus;
 use App\Models\Product;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use App\Traits\ClearsProductCache;
 
 class ProductArchiveService
 {
+    use ClearsProductCache;
+
     public function archive(array $data, Product $product)
     {
         return DB::transaction(function () use ($data, $product) {
@@ -42,10 +44,5 @@ class ProductArchiveService
 
             return $product->load(['categories', 'user', 'images', 'mainImage', 'region', 'city']);
         });
-    }
-
-    public function clearCache(int $productId): void
-    {
-        Cache::forget("product-show-{$productId}");
     }
 }

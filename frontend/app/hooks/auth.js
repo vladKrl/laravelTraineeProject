@@ -31,17 +31,28 @@ export const useAuth = ({middleware} = {}) => {
             await mutate();
 
             router.push("/");
-        } catch(error) {
+        } catch (error) {
             if (error?.response) {
-                if (error.response.status !== 422) throw error;
+                const status = error.response.status;
 
-                const responseErrors = error.response?.data?.errors;
+                if (status === 422) {
+                    const responseErrors = error.response?.data?.errors;
 
-                setErrors(
-                    responseErrors
-                        ? Object.values(responseErrors).flat()
-                        : [error.response?.data?.message || 'Too many attempts. Please try again later.']
-                );
+                    setErrors(
+                        responseErrors
+                            ? Object.values(responseErrors).flat()
+                            : [error.response?.data?.message || 'Invalid Credentials.']
+                    );
+                } else if (status === 429) {
+                    const retryAfter = error.response.headers?.get?.('retry-after');
+
+                    const message = retryAfter
+                        ? `Too many attempts. Please, wait for ${retryAfter} sec.`
+                        : (error.response?.data?.message || 'Too many attempts. Try again later.');
+
+                    setErrors([message]);
+                } else
+                    throw error;
             } else if (error.request) {
                 console.error("Server is not answering.");
 
@@ -76,15 +87,26 @@ export const useAuth = ({middleware} = {}) => {
             router.push("/");
         } catch (error) {
             if (error?.response) {
-                if (error.response.status !== 422) throw error;
+                const status = error.response.status;
 
-                const responseErrors = error.response?.data?.errors;
+                if (status === 422) {
+                    const responseErrors = error.response?.data?.errors;
 
-                setErrors(
-                    responseErrors
-                        ? Object.values(responseErrors).flat()
-                        : [error.response?.data?.message || 'Too many attempts. Please try again later.']
-                );
+                    setErrors(
+                        responseErrors
+                            ? Object.values(responseErrors).flat()
+                            : [error.response?.data?.message || 'Invalid Credentials.']
+                    );
+                } else if (status === 429) {
+                    const retryAfter = error.response.headers?.get?.('retry-after');
+
+                    const message = retryAfter
+                        ? `Too many attempts. Please, wait for ${retryAfter} sec.`
+                        : (error.response?.data?.message || 'Too many attempts. Try again later.');
+
+                    setErrors([message]);
+                } else
+                    throw error;
             } else if (error.request) {
                 console.error("Server is not answering.");
 
@@ -104,15 +126,18 @@ export const useAuth = ({middleware} = {}) => {
             setStatus(response.data.status);
         } catch (error) {
             if (error?.response) {
-                if (error.response.status !== 429) throw error;
+                const status = error.response.status;
 
-                const responseErrors = error.response?.data?.errors;
+                if (status === 429) {
+                    const retryAfter = error.response.headers?.get?.('retry-after');
 
-                setErrors(
-                    responseErrors
-                        ? Object.values(responseErrors).flat()
-                        : [error.response?.data?.message || 'Too many attempts. Please try again later.']
-                );
+                    const message = retryAfter
+                        ? `Too many attempts. Please, wait for ${retryAfter} sec.`
+                        : (error.response?.data?.message || 'Too many attempts. Try again later.');
+
+                    setErrors([message]);
+                } else
+                    throw error;
             } else if (error.request) {
                 console.error("Server is not answering.");
 

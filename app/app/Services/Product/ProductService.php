@@ -5,11 +5,13 @@ namespace App\Services\Product;
 use App\Enums\ProductStatus;
 use App\Models\Product;
 use App\Models\User;
-use Illuminate\Support\Facades\Cache;
+use App\Traits\ClearsProductCache;
 use Illuminate\Support\Facades\DB;
 
 class ProductService
 {
+    use ClearsProductCache;
+
     private ProductImageService $productImageService;
 
     public function __construct(ProductImageService $productImageService)
@@ -19,14 +21,16 @@ class ProductService
 
     public function createProduct(array $data, User $user): Product
     {
-        return DB::transaction(function () use ($data, $user) {
+        $hasImages = array_key_exists('images', $data);
+        $images = $data['images'] ?? [];
+
+        unset($data['images']);
+
+        $product = DB::transaction(function () use ($data, $user) {
             $hasCategories = array_key_exists('categories', $data);
             $categories = $data['categories'] ?? [];
 
-            $hasImages = array_key_exists('images', $data);
-            $images = $data['images'] ?? [];
-
-            unset($data['images'], $data['categories']);
+            unset($data['categories']);
 
             $data['user_id'] = $user->id;
             $data['status'] ??= ProductStatus::ACTIVE;
@@ -39,12 +43,20 @@ class ProductService
                 $product->touch();
             }
 
-            if ($hasImages) {
-                $this->productImageService->uploadImages($images, $product);
-            }
-
-            return $product->load(['categories', 'mainImage']);
+            return $product;
         });
+
+        if ($hasImages) {
+            try {
+                $this->productImageService->uploadImages($images, $product);
+            } catch (\Throwable $e) {
+                $product->delete();
+
+                throw $e;
+            }
+        }
+
+        return $product->load(['categories', 'mainImage']);
     }
 
     public function updateProduct(array $data, Product $product): Product
@@ -80,10 +92,5 @@ class ProductService
         $product->delete();
 
         $this->clearCache($product->id);
-    }
-
-    public function clearCache(int $productId): void
-    {
-        Cache::forget("product-show-{$productId}");
     }
 }

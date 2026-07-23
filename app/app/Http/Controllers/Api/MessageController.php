@@ -29,6 +29,21 @@ class MessageController extends Controller implements HasMiddleware
         ];
     }
 
+    public function index(Conversation $conversation): \Illuminate\Http\JsonResponse
+    {
+        $this->authorize('participate', $conversation);
+
+        $paginated = $conversation->messages()
+            ->latest('id')
+            ->cursorPaginate(25);
+
+        return response()->json([
+            'data' => $paginated->getCollection()->reverse()->values(),
+            'next_cursor' => $paginated->nextCursor()?->encode(),
+            'has_more' => $paginated->hasMorePages(),
+        ]);
+    }
+
     public function store(Request $request, Conversation $conversation): MessageResource
     {
         $this->authorize('participate', $conversation);

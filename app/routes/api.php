@@ -40,6 +40,8 @@ Route::post('profile/{profile}/avatar', [ProfileController::class, 'uploadAvatar
 
 Route::apiResource('conversations', ConversationController::class)->only(['index', 'store', 'show']);
 
+Route::get('conversations/{conversation}/messages', [MessageController::class, 'index']);
+
 Route::post('conversations/{conversation}/messages', [MessageController::class, 'store']);
 
 Route::post('products/{product}/favorites', [FavoriteController::class, 'toggle']);

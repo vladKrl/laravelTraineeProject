@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\Profile;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 
 class UserObserver
 {
@@ -24,7 +25,9 @@ class UserObserver
      */
     public function updated(User $user): void
     {
-        //
+        if ($user->wasChanged(['name', 'email', 'avatar'])) {
+            Cache::tags("user:{$user->id}")->flush();
+        }
     }
 
     /**

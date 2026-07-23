@@ -3,17 +3,19 @@
 namespace App\Observers;
 
 use App\Models\Product;
-use Illuminate\Support\Facades\Cache;
+use App\Traits\ClearsProductCache;
 
 class ProductObserver
 {
+    use ClearsProductCache;
+
     public function updated(Product $product): void
     {
-        Cache::forget("product-show-{$product->id}");
+        $this->clearCache($product->id);
     }
 
     public function deleted(Product $product): void
     {
-        Cache::forget("product-show-{$product->id}");
+        $this->clearCache($product->id);
     }
 }

@@ -9,7 +9,7 @@ use App\Observers\MessageObserver;
 #[ObservedBy(MessageObserver::class)]
 class Message extends Model
 {
-    protected $fillable = ['conversation_id', 'user_id', 'body', 'is_read'];
+    protected $fillable = ['conversation_id', 'user_id', 'body'];
 
     public function conversation(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

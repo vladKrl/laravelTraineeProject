@@ -8,6 +8,7 @@ use App\Http\Resources\ReviewResource;
 use App\Models\Product;
 use App\Models\Review;
 use App\Models\User;
+use App\Services\Review\ReviewService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -15,6 +16,13 @@ use Illuminate\Routing\Controllers\Middleware;
 class ReviewController extends Controller implements HasMiddleware
 {
     use AuthorizesRequests;
+
+    private ReviewService $reviewService;
+
+    public function __construct(ReviewService $reviewService)
+    {
+        $this->reviewService = $reviewService;
+    }
 
     public static function middleware(): array
     {
@@ -33,19 +41,14 @@ class ReviewController extends Controller implements HasMiddleware
 
     public function store(StoreReviewRequest $request, Product $product): ReviewResource
     {
-        $this->authorize('create', [Review::class, $product]);
+        $review = $this->reviewService
+            ->createReview(
+                $request->validated(),
+                $request->user(),
+                $product,
+            );
 
-        $data = $request->validated();
-
-        $review = Review::create([
-            'rating'        => $data['rating'],
-            'body'          => $data['body'] ?? null,
-            'author_id'     => auth()->id(),
-            'receiver_id'   => $product->user_id,
-            'product_id'    => $product->id,
-        ]);
-
-        return new ReviewResource($review->load(['author', 'product']));
+        return new ReviewResource($review);
     }
 
     public function destroy(Review $review): \Illuminate\Http\Response

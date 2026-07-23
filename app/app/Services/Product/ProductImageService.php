@@ -4,13 +4,15 @@ namespace App\Services\Product;
 
 use App\Models\Product;
 use App\Models\ProductImage;
-use Illuminate\Support\Facades\Cache;
+use App\Traits\ClearsProductCache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class ProductImageService
 {
+    use ClearsProductCache;
+
     public function uploadImages(array $data, Product $product): array
     {
         $savedImagesCount = $product->images()->count();
@@ -22,38 +24,71 @@ class ProductImageService
             ]);
         }
 
-        $uploadedImages = [];
+        $storedPaths = [];
 
-        if (!empty($data)) {
-            foreach ($data as $index => $image) {
-                $path = $image->store("products/{$product->id}", 'public');
-
-                $createdImage = $product->images()->create([
-                    'path' => $path,
-                    'is_main' => ($savedImagesCount + $index) === 0,
-                    'position' => $savedImagesCount + $index,
-                ]);
-
-                $uploadedImages[] = $createdImage;
-            }
+        if (empty($data)) {
+            return [];
         }
 
-        $this->clearCache($product->id);
+        try {
+            foreach ($data as $image) {
+                $storedPaths[] = $image->store("products/{$product->id}", 'public');
+            }
 
-        return $uploadedImages;
+            $uploadedImages = DB::transaction(function () use ($product, $storedPaths) {
+                $lockedProduct = Product::where('id', $product->id)->lockForUpdate()->first();
+
+                $imagesCount = $lockedProduct->images()->count();
+
+                if ($imagesCount + count($storedPaths) > 9) {
+                    throw ValidationException::withMessages([
+                        'images' => 'The max number of images is 9!',
+                    ]);
+                }
+
+                $createdImages = [];
+
+                foreach ($storedPaths as $index => $path) {
+                    $createdImages[] = $lockedProduct->images()->create([
+                        'path'      => $path,
+                        'is_main' => ($imagesCount + $index) === 0,
+                        'position' => $imagesCount + $index,
+                    ]);
+                }
+
+                return $createdImages;
+            });
+
+            $this->clearCache($product->id);
+
+            return $uploadedImages;
+        } catch (\Throwable $e) {
+            $this->deleteStoredFiles($storedPaths);
+
+            throw $e;
+        }
+    }
+
+    public function deleteStoredFiles(array $paths): void
+    {
+        if (!empty($paths)) {
+            Storage::disk('public')->delete($paths);
+        }
     }
 
     public function deleteImage(Product $product, ProductImage $productImage): void
     {
-        DB::transaction(function () use ($product, $productImage) {
-            Storage::disk('public')->delete($productImage->getRawOriginal('path'));
+        $path = $productImage->getRawOriginal('path');
 
+        DB::transaction(function () use ($product, $productImage) {
             $productImage->delete();
 
             $this->rearrangeMainImage($product);
 
             $this->clearCache($product->id);
         });
+
+        Storage::disk('public')->delete($path);
     }
 
     protected function rearrangeMainImage(Product $product)
@@ -71,10 +106,5 @@ class ProductImageService
                 'is_main' => true,
             ]);
         }
-    }
-
-    public function clearCache(int $productId): void
-    {
-        Cache::forget("product-show-{$productId}");
     }
 }

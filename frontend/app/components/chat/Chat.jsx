@@ -1,11 +1,18 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react';
+import {useState, useEffect, useRef} from 'react';
 import echo from "../../../utils/echo";
 import api from "../../../utils/api";
 import Button from "../Button";
 
-export default function Chat({ chatId, initialMessages, currentUser, isConversationClosed = false }) {
+export default function Chat({
+                                 chatId,
+                                 initialMessages,
+                                 initialNextCursor = null,
+                                 initialHasMore = false,
+                                 currentUser,
+                                 isConversationClosed = false
+}) {
     const [messages, setMessages] = useState(initialMessages || []);
     const [newMessage, setNewMessage] = useState('');
     const [isInterlocutorTyping, setIsInterlocutorTyping] = useState(false);
@@ -13,6 +20,10 @@ export default function Chat({ chatId, initialMessages, currentUser, isConversat
     const typingTimeoutRef = useRef(null);
     const scrollRef = useRef(null);
     const firstScrollRef = useRef(true);
+
+    const [nextCursor, setNextCursor] = useState(initialNextCursor);
+    const [hasMore, setHasMore] = useState(initialHasMore);
+    const [loadingMore, setLoadingMore] = useState(false);
 
     useEffect(() => {
         if (!echo || !chatId) return;
@@ -58,6 +69,8 @@ export default function Chat({ chatId, initialMessages, currentUser, isConversat
         });
     };
 
+    const lastMessageId = messages[messages.length - 1]?.id;
+
     useEffect(() => {
         if (scrollRef.current){
             scrollRef.current.scrollTo({
@@ -67,7 +80,43 @@ export default function Chat({ chatId, initialMessages, currentUser, isConversat
         }
 
         firstScrollRef.current = false;
-    }, [messages]);
+    }, [lastMessageId]);
+
+    const handleScroll = async () => {
+        const container = scrollRef.current;
+
+        if (!container || loadingMore || !hasMore || !nextCursor) return;
+
+        if (container.scrollTop <= 1) {
+            setLoadingMore(true);
+
+            const previousScrollHeight = container.scrollHeight;
+
+            try {
+                const res = await api.get(`/api/conversations/${chatId}/messages`, {
+                    params: { cursor: nextCursor }
+                });
+
+                const olderMessages = res.data.data;
+                const newNextCursor = res.data.next_cursor;
+                const newHasMore = res.data.has_more;
+
+                setMessages((prev) => [...olderMessages, ...prev]);
+                setNextCursor(newNextCursor);
+                setHasMore(newHasMore);
+
+                requestAnimationFrame(() => {
+                    if (scrollRef.current) {
+                        scrollRef.current.scrollTop = scrollRef.current.scrollHeight - previousScrollHeight;
+                    }
+                });
+            } catch (error) {
+                console.error("Failed to load older messages:", error);
+            } finally {
+                setLoadingMore(false);
+            }
+        }
+    };
 
     const sendMessage = async (e) => {
         e.preventDefault();
@@ -97,7 +146,13 @@ export default function Chat({ chatId, initialMessages, currentUser, isConversat
 
     return (
         <div className={"flex flex-col flex-grow min-h-0 border"}>
-            <div ref={scrollRef} className={"flex-grow overflow-y-auto p-4 space-y-4"}>
+            <div ref={scrollRef} onScroll={handleScroll} className={"flex-grow overflow-y-auto p-4 space-y-4"}>
+                {loadingMore && (
+                    <div className="text-center text-xs text-gray-500 py-2">
+                        Loading history...
+                    </div>
+                )}
+
                 {messages.map((msg) => {
                     const isMine = Number(msg.user_id) === Number(currentUser.id);
 

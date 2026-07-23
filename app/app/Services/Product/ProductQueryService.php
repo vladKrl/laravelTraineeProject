@@ -56,9 +56,27 @@ class ProductQueryService
     public function showProduct(Product $product, ?User $user = null): Product
     {
         $relations = ['categories', 'user', 'images', 'mainImage', 'region', 'city'];
+
+        $tags = [
+            'products',
+            "product:{$product->id}",
+            "user:{$product->user_id}",
+            "location:{$product->region_id}",
+        ];
+
+        if ($product->city_id) {
+            $tags[] = "location:{$product->city_id}";
+        }
+
+        $categoryIds = $product->categories()->pluck('categories.id');
+
+        foreach ($categoryIds as $categoryId) {
+            $tags[] = "category:{$categoryId}";
+        }
+
         $cacheKey = "product-show-{$product->id}";
 
-        $product = Cache::remember($cacheKey, now()->addHours(12), function () use ($product, $relations) {
+        $product = Cache::tags($tags)->remember($cacheKey, now()->addHours(8), function () use ($product, $relations) {
             return $product->load($relations);
         });
 
@@ -108,5 +126,4 @@ class ProductQueryService
             ->latest()
             ->paginate(12);
     }
-
 }

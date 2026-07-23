@@ -68,6 +68,22 @@ class ConversationController extends Controller implements HasMiddleware
     {
         $this->authorize('participate', $conversation);
 
-        return new ConversationResource($conversation->load(['messages', 'product', 'buyer', 'seller']));
+        $conversation->load(['product', 'buyer', 'seller']);
+
+        $paginatedMessages = $conversation->messages()
+            ->latest('id')
+            ->cursorPaginate(25);
+
+        $reversedMessages = $paginatedMessages->getCollection()->reverse()->values();
+
+        $conversation->setRelation('messages', $reversedMessages);
+
+        return (new ConversationResource($conversation))
+            ->additional([
+                'meta' => [
+                    'next_cursor'   => $paginatedMessages->nextCursor()?->encode(),
+                    'has_more'      => $paginatedMessages->hasMorePages(),
+                ]
+            ]);
     }
 }

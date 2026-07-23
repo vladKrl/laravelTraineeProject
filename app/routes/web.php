@@ -26,7 +26,7 @@ Route::post('/login', function (Request $request) {
             'email' => ['The provided credentials do not match our records.']
         ]
     ], 422);
-});
+})->middleware('throttle:login');
 
 Route::post('/logout', function (Request $request) {
     Auth::guard('web')->logout();
@@ -36,7 +36,7 @@ Route::post('/logout', function (Request $request) {
 });
 
 Route::post('/register', Register::class)
-    ->middleware('guest');
+    ->middleware(['guest', 'throttle:register']);
 
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
@@ -50,7 +50,7 @@ Route::post('/email/verification-notification', function (Request $request) {
 
 /*
  Taken from the old project as a reference
- Via copying this basit template new CRUD pages will be created
+ Via copying this basic template new CRUD pages will be created
  Route::group(['namespace' => 'Object','prefix' => 'objects'], function(){
      Route::get('/', 'IndexController')->name('admin.object.index');
      Route::get('/create', 'CreateController')->name('admin.object.create');

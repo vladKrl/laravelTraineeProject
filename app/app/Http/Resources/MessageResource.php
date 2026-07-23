@@ -20,7 +20,6 @@ class MessageResource extends JsonResource
                 'body' => $this->body,
                 'user_id' => $this->user_id,
                 'is_mine' => $this->user_id === auth()->id(),
-                'is_read' => (bool)$this->is_read,
                 'created_at' => $this->created_at->toIso8601String(),
             ];
         }
