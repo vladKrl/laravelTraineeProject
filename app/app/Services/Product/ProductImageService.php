@@ -58,15 +58,15 @@ class ProductImageService
 
                 return $createdImages;
             });
-
-            $this->clearCache($product->id);
-
-            return $uploadedImages;
         } catch (\Throwable $e) {
             $this->deleteStoredFiles($storedPaths);
 
             throw $e;
         }
+
+        $this->clearCache($product->id);
+
+        return $uploadedImages;
     }
 
     public function deleteStoredFiles(array $paths): void

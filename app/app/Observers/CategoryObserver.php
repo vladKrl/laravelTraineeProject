@@ -20,9 +20,7 @@ class CategoryObserver
      */
     public function updated(Category $category): void
     {
-        if ($category->wasChanged('name')) {
-            Cache::tags("category:{$category->id}")->flush();
-        }
+        Cache::tags("category:{$category->id}")->flush();
     }
 
     /**

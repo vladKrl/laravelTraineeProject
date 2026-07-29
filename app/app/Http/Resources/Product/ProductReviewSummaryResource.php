@@ -16,11 +16,15 @@ class ProductReviewSummaryResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $canView = Gate::allows('view', $this->resource);
+
         return [
-            'id'            => $this->id,
-            'label'         => $this->label,
-            'main_image'    => new ProductImageResource($this->whenLoaded('mainImage')),
-            'can_view'      => Gate::allows('view', $this->resource),
+            'can_view'      => $canView,
+            $this->mergeWhen($canView, [
+                'id'            => $this->id,
+                'label'         => $this->label,
+                'main_image'    => new ProductImageResource($this->whenLoaded('mainImage')),
+            ]),
         ];
     }
 }

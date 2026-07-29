@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Cache;
+use RuntimeException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -22,6 +24,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (!Cache::supportsTags()) {
+            throw new RuntimeException(
+                sprintf(
+                    'Current cache driver [%s] does not support tagging. Please set CACHE_STORE as a tag-supported driver in your .env file.',
+                    config('cache.default')
+                )
+            );
+        }
+
         RateLimiter::for('login', function (Request $request) {
             $email = (string) $request->input('email');
 

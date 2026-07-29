@@ -38,9 +38,9 @@ class MessageController extends Controller implements HasMiddleware
             ->cursorPaginate(25);
 
         return response()->json([
-            'data' => $paginated->getCollection()->reverse()->values(),
-            'next_cursor' => $paginated->nextCursor()?->encode(),
-            'has_more' => $paginated->hasMorePages(),
+            'data'          => $paginated->getCollection()->reverse()->values(),
+            'next_cursor'   => $paginated->nextCursor()?->encode(),
+            'has_more'      => $paginated->hasMorePages(),
         ]);
     }
 

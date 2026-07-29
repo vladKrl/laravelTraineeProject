@@ -86,6 +86,11 @@ services:
   db:
     volumes:
       - pgdata-volume:/var/lib/postgresql
+    # WARNING: PostgreSQL 18 uses a new PGDATA path
+    # If upgrading from PG <=17:
+      # 1. Run pg_dumpall on the old container
+      # 2. Recreate volumes
+      # 3. Restore the dump
     image: postgres:18
     env_file:
       - postgre.env
@@ -102,6 +107,11 @@ services:
   db_test:
     volumes:
       - pgtestdata-volume:/var/lib/postgresql
+    # WARNING: PostgreSQL 18 uses a new PGDATA path
+    # If upgrading from PG <=17:
+      # 1. Run pg_dumpall on the old container
+      # 2. Recreate volumes
+      # 3. Restore the dump
     image: postgres:18
     env_file:
       - postgretest.env
