@@ -20,6 +20,43 @@ export const useAuth = ({middleware} = {}) => {
             })
         );
 
+    const handleAuthError = (error, setErrors) => {
+        if (error?.response) {
+            const status = error.response.status;
+
+            if (status === 422) {
+                const responseErrors = error.response?.data?.errors;
+
+                setErrors(
+                    responseErrors
+                        ? Object.values(responseErrors).flat()
+                        : [error.response?.data?.message || 'Invalid Credentials.']
+                );
+            } else if (status === 429) {
+                const retryAfter = error.response.headers?.get?.('retry-after');
+
+                const message = retryAfter
+                    ? `Too many attempts. Please, wait for ${retryAfter} sec.`
+                    : (error.response?.data?.message || 'Too many attempts. Try again later.');
+
+                setErrors([message]);
+            } else if (status === 419) {
+                setErrors(['Page expired. Please refresh the page and try again.']);
+            } else if (status === 401) {
+                setErrors(['You are unauthenticated. Please log in.']);
+
+                mutate(null);
+            } else
+                throw error;
+        } else if (error.request) {
+            console.error("Server is not answering.");
+
+            setErrors(["Server is not available."]);
+        } else
+            throw error;
+    }
+
+
     const login = async ({setErrors, ...props}) => {
         setErrors([]);
 
@@ -32,33 +69,7 @@ export const useAuth = ({middleware} = {}) => {
 
             router.push("/");
         } catch (error) {
-            if (error?.response) {
-                const status = error.response.status;
-
-                if (status === 422) {
-                    const responseErrors = error.response?.data?.errors;
-
-                    setErrors(
-                        responseErrors
-                            ? Object.values(responseErrors).flat()
-                            : [error.response?.data?.message || 'Invalid Credentials.']
-                    );
-                } else if (status === 429) {
-                    const retryAfter = error.response.headers?.get?.('retry-after');
-
-                    const message = retryAfter
-                        ? `Too many attempts. Please, wait for ${retryAfter} sec.`
-                        : (error.response?.data?.message || 'Too many attempts. Try again later.');
-
-                    setErrors([message]);
-                } else
-                    throw error;
-            } else if (error.request) {
-                console.error("Server is not answering.");
-
-                setErrors(["Server is not available."]);
-            } else
-                throw error;
+            handleAuthError(error, setErrors);
         }
     }
 
@@ -86,33 +97,7 @@ export const useAuth = ({middleware} = {}) => {
 
             router.push("/");
         } catch (error) {
-            if (error?.response) {
-                const status = error.response.status;
-
-                if (status === 422) {
-                    const responseErrors = error.response?.data?.errors;
-
-                    setErrors(
-                        responseErrors
-                            ? Object.values(responseErrors).flat()
-                            : [error.response?.data?.message || 'Invalid Credentials.']
-                    );
-                } else if (status === 429) {
-                    const retryAfter = error.response.headers?.get?.('retry-after');
-
-                    const message = retryAfter
-                        ? `Too many attempts. Please, wait for ${retryAfter} sec.`
-                        : (error.response?.data?.message || 'Too many attempts. Try again later.');
-
-                    setErrors([message]);
-                } else
-                    throw error;
-            } else if (error.request) {
-                console.error("Server is not answering.");
-
-                setErrors(["Server is not available."]);
-            } else
-                throw error;
+            handleAuthError(error, setErrors);
         }
     }
 
@@ -125,25 +110,7 @@ export const useAuth = ({middleware} = {}) => {
 
             setStatus(response.data.status);
         } catch (error) {
-            if (error?.response) {
-                const status = error.response.status;
-
-                if (status === 429) {
-                    const retryAfter = error.response.headers?.get?.('retry-after');
-
-                    const message = retryAfter
-                        ? `Too many attempts. Please, wait for ${retryAfter} sec.`
-                        : (error.response?.data?.message || 'Too many attempts. Try again later.');
-
-                    setErrors([message]);
-                } else
-                    throw error;
-            } else if (error.request) {
-                console.error("Server is not answering.");
-
-                setErrors(["Server is not available."]);
-            } else
-                throw error;
+            handleAuthError(error, setErrors)
         }
     };
 

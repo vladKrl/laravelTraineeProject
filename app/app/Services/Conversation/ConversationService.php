@@ -6,6 +6,7 @@ use App\Enums\ProductStatus;
 use App\Models\Conversation;
 use App\Models\Product;
 use App\Models\User;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -23,7 +24,12 @@ class ConversationService
             ]);
 
             if (!$conversation->wasRecentlyCreated) {
-                return $conversation->load(['product', 'buyer', 'seller', 'latestMessage']);
+                throw new HttpResponseException(
+                    response()->json([
+                        'message'           => 'A conversation exists already.',
+                        'conversation_id'   => $conversation->id,
+                    ], 409)
+                );
             }
 
             $conversation->messages()->create([

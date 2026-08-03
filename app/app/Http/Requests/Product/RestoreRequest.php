@@ -6,7 +6,6 @@ use App\Enums\ProductStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
-use Illuminate\Validation\Rule;
 
 class RestoreRequest extends FormRequest
 {
@@ -15,7 +14,7 @@ class RestoreRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('update', $this->route('product'));
+        return $this->user()->can('restore', $this->route('product'));
     }
 
     /**

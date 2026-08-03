@@ -65,7 +65,15 @@ class ProductPolicy
      */
     public function restore(User $user, Product $product): bool
     {
-        return false;
+        if ($user->id !== $product->user_id) {
+            return false;
+        }
+
+        if ($product->buyer_id !== null) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

@@ -23,7 +23,24 @@ export default function ContactWithSeller ({ productId }) {
 
             router.push(`/conversations/${response.data.data.id}`);
         } catch (error) {
-            console.error(error);
+            if (error?.response) {
+                const { status, data } = error.response;
+
+                if (status === 422 || status === 409) {
+                    const existingConversationId = data?.conversation_id;
+
+                    if (existingConversationId) {
+                        router.push(`/conversations/${existingConversationId}`);
+
+                        return
+                    }
+                }
+
+                throw error;
+            } else if (error.request) {
+                console.error("Server is not answering.");
+            } else
+                throw error;
         }
     }
 

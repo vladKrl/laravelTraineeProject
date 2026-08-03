@@ -100,7 +100,7 @@ services:
       timeout: 5s
       retries: 10
     ports:
-      - "${POSTGRESQL_HOST_PORT}:5432"
+      - "127.0.0.1:${POSTGRESQL_HOST_PORT}:5432"
     networks:
       - single-net
 
@@ -121,7 +121,7 @@ services:
       timeout: 5s
       retries: 10
     ports:
-      - "${POSTGRESQL_TEST_HOST_PORT}:5432"
+      - "127.0.0.1:${POSTGRESQL_TEST_HOST_PORT}:5432"
     networks:
       - single-net
 
@@ -153,7 +153,7 @@ services:
     volumes:
       - laravelelastic:/usr/share/elasticsearch/data
     ports:
-      - "${FORWARD_ELASTIC_PORT:-9200}:9200"
+      - "127.0.0.1:${FORWARD_ELASTIC_PORT:-9200}:9200"
     networks:
       - single-net
     restart: unless-stopped
@@ -161,7 +161,7 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana:9.3.2
     ports:
-      - "${FORWARD_KIBANA_PORT:-5601}:5601"
+      - "127.0.0.1:${FORWARD_KIBANA_PORT:-5601}:5601"
     environment:
       ELASTICSEARCH_HOSTS: "http://elastic:9200"
     networks:
@@ -174,7 +174,7 @@ services:
     image: redis:8.6.2-alpine
     restart: always
     ports:
-      - "${REDIS_PORT}:6379"
+      - "127.0.0.1:${REDIS_PORT}:6379"
     command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
     volumes:
       - cache:/data

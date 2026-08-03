@@ -91,6 +91,9 @@ export default function ProductShow() {
         if (id) fetchProduct();
     }, [id, router]);
 
+    const isSold = Boolean(product?.buyer || product?.buyer_id);
+    const isArchived = product?.status === 'archived';
+
     if (loading) {
         return <div className={"p-10 text-center"}>Loading...</div>
     }
@@ -175,9 +178,15 @@ export default function ProductShow() {
                                                 handlePutFromArchive();
                                             }
                                         }}
-                                        className={"bg-orange-500 border-3 border-red-800 hover:bg-orange-600 text-white px-2 py-3"}
+                                        disabled={(isSold && isArchived)}
+                                        className={`${(isSold && isArchived) ? 'bg-gray-500 border-gray-600 hover:bg-gray-600 cursor-not-allowed' : 'bg-orange-500 border-red-800 hover:bg-orange-600'} border-3 text-white px-2 py-3`}
                                     >
-                                        {product.status === 'active' ? 'Archive product' : 'Put from archive'}
+                                        {product.status === 'active'
+                                            ? 'Archive product'
+                                            : (isSold && isArchived)
+                                                ? 'Sold (Archived)'
+                                                : 'Put from archive'
+                                        }
                                     </Button>
                                 )}
                             </div>

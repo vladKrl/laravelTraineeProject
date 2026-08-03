@@ -55,7 +55,7 @@ class ProductQueryService
 
     public function showProduct(Product $product, ?User $user = null): Product
     {
-        $relations = ['categories', 'user', 'images', 'mainImage', 'region', 'city'];
+        $relations = ['categories', 'user', 'images', 'mainImage', 'region', 'city', 'buyer'];
 
         $tags = [
             'products',

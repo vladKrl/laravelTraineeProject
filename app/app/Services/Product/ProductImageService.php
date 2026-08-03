@@ -5,13 +5,14 @@ namespace App\Services\Product;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Traits\ClearsProductCache;
+use App\Traits\DeleteStoredFiles;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class ProductImageService
 {
-    use ClearsProductCache;
+    use ClearsProductCache, DeleteStoredFiles;
 
     public function uploadImages(array $data, Product $product): array
     {
@@ -46,13 +47,15 @@ class ProductImageService
                     ]);
                 }
 
+                $nextPosition = ($lockedProduct->images()->max('position') ?? -1 ) + 1;
+
                 $createdImages = [];
 
                 foreach ($storedPaths as $index => $path) {
                     $createdImages[] = $lockedProduct->images()->create([
                         'path'      => $path,
                         'is_main' => ($imagesCount + $index) === 0,
-                        'position' => $imagesCount + $index,
+                        'position' => $nextPosition + $index,
                     ]);
                 }
 
@@ -67,13 +70,6 @@ class ProductImageService
         $this->clearCache($product->id);
 
         return $uploadedImages;
-    }
-
-    public function deleteStoredFiles(array $paths): void
-    {
-        if (!empty($paths)) {
-            Storage::disk('public')->delete($paths);
-        }
     }
 
     public function deleteImage(Product $product, ProductImage $productImage): void

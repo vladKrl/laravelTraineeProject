@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use RuntimeException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -34,9 +35,12 @@ class AppServiceProvider extends ServiceProvider
         }
 
         RateLimiter::for('login', function (Request $request) {
-            $email = (string) $request->input('email');
+            $email = Str::lower(trim((string) $request->input('email')));
 
-            return Limit::perMinute(5)->by($email . '|' . $request->ip());
+            return [
+                Limit::perMinute(5)->by($email . '|' . $request->ip()),
+                Limit::perMinute(10)->by($request->ip()),
+            ];
         });
 
         RateLimiter::for('register', function (Request $request) {

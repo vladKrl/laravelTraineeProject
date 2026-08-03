@@ -20,6 +20,7 @@ export default function Chat({
     const typingTimeoutRef = useRef(null);
     const scrollRef = useRef(null);
     const firstScrollRef = useRef(true);
+    const loadingMoreRef = useRef(false);
 
     const [nextCursor, setNextCursor] = useState(initialNextCursor);
     const [hasMore, setHasMore] = useState(initialHasMore);
@@ -85,9 +86,11 @@ export default function Chat({
     const handleScroll = async () => {
         const container = scrollRef.current;
 
-        if (!container || loadingMore || !hasMore || !nextCursor) return;
+        if (!container || loadingMoreRef.current || !hasMore || !nextCursor) return;
 
         if (container.scrollTop <= 1) {
+            loadingMoreRef.current = true;
+
             setLoadingMore(true);
 
             const previousScrollHeight = container.scrollHeight;
@@ -101,7 +104,16 @@ export default function Chat({
                 const newNextCursor = res.data.next_cursor;
                 const newHasMore = res.data.has_more;
 
-                setMessages((prev) => [...olderMessages, ...prev]);
+                setMessages((prev) => {
+                    const existingIds = new Set(prev.map((msg) => msg.id));
+
+                    const filteredMessages = olderMessages.filter(
+                        (msg) => !existingIds.has(msg.id)
+                    );
+
+                    return [...filteredMessages, ...prev];
+                });
+
                 setNextCursor(newNextCursor);
                 setHasMore(newHasMore);
 
@@ -113,6 +125,8 @@ export default function Chat({
             } catch (error) {
                 console.error("Failed to load older messages:", error);
             } finally {
+                loadingMoreRef.current = false;
+
                 setLoadingMore(false);
             }
         }

@@ -1,6 +1,6 @@
 # Laravel + Next.js classifieds platform
 ___
-### Technology stack
+### Technology Stack
 * **Backend**: Laravel Framework 12.55.1, Elasticsearch 9.3.2 + Laravel Scout, PostgreSQL, Redis
 * **Frontend**: Next.js v16.2.1, Tailwindcss 4.2.2, Laravel Echo with Pusher.js
 * **Real-time functions**: Laravel Reverb (Websocket server with Pusher), Laravel Queue Worker
@@ -21,6 +21,12 @@ cp frontend/.env.example frontend/.env
 docker compose up -d --build\
 docker compose run --rm php composer install\
 docker compose run --rm php php artisan key:generate\
-docker compose run --rm php php artisan migrate --seed\
 docker compose run --rm php php artisan storage:link\
 docker compose run --rm php php artisan scout:import "App\\Models\\Product"
+
+## Database Setup 
+For local development:\
+docker compose run --rm php php artisan migrate --seed\
+
+For production:\
+docker compose run --rm php php artisan migrate
